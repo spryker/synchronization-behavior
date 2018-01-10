@@ -9,7 +9,7 @@
     "spryker/zend": "^2.1.0"
   },
   "suggest": {
-    "spryker/synchronizationBehavior": "^0.1.0"
+    "spryker/synchronization": "^0.1.0"
   },
   "autoload": {
     "psr-4": {
