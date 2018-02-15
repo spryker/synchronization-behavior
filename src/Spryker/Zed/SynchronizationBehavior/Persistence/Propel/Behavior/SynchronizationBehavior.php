@@ -365,6 +365,11 @@ protected function setGeneratedKey()
     {
         $queueName = $this->getParameter('queue_group')['value'];
 
+        $assignMessageToStore = '';
+        if ($this->hasStore()) {
+            $assignMessageToStore = "\$queueSendTransfer->setStoreName(\$this->store);";
+        }
+
         if ($queueName === null) {
             $queueName = $this->getParameter('resource')['value'];
         }
@@ -383,6 +388,7 @@ protected function sendToQueue(array \$message)
     
     \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
     \$queueSendTransfer->setBody(json_encode(\$message));
+    $assignMessageToStore
     
     \$queueClient = \$this->_locator->queue()->client();
     \$queueClient->sendMessage('$queueName', \$queueSendTransfer);
@@ -479,6 +485,14 @@ public function syncUnpublishedMessage()
     \$this->sendToQueue(\$message);
 }        
         ";
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasStore()
+    {
+        return isset($this->getParameters()['store']);
     }
 
     /**
