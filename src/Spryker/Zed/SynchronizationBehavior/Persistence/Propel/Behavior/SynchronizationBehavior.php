@@ -21,6 +21,7 @@ class SynchronizationBehavior extends Behavior
     protected $parameters = [
         'resource' => null,
         'queue_group' => null,
+        'queue_pool' => null,
     ];
 
     /**
@@ -365,8 +366,14 @@ protected function setGeneratedKey()
     {
         $queueName = $this->getParameter('queue_group')['value'];
 
+        $setQueuePool = '';
+        $queuePoolName = $this->getQueuePoolName();
+        if ($queuePoolName) {
+            $setQueuePool =  "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
+        }
+
         $assignMessageToStore = '';
-        if ($this->hasStore()) {
+        if ($this->hasStore() && !$queuePoolName) {
             $assignMessageToStore = "\$queueSendTransfer->setStoreName(\$this->store);";
         }
 
@@ -388,6 +395,7 @@ protected function sendToQueue(array \$message)
     
     \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
     \$queueSendTransfer->setBody(json_encode(\$message));
+    $setQueuePool
     $assignMessageToStore
     
     \$queueClient = \$this->_locator->queue()->client();
@@ -493,6 +501,23 @@ public function syncUnpublishedMessage()
     protected function hasStore()
     {
         return isset($this->getParameters()['store']);
+    }
+
+    /**
+     * @return string|null
+     */
+    protected function getQueuePoolName()
+    {
+        $parameters = $this->getParameters();
+        if (!isset($parameters['queue_pool'])) {
+            return null;
+        }
+
+        if (!isset($parameters['queue_pool']['value'])) {
+            return null;
+        }
+
+        return $parameters['queue_pool']['value'];
     }
 
     /**
