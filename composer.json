@@ -9,6 +9,7 @@
     "spryker/zend": "^2.1.0"
   },
   "suggest": {
+    "spryker/queue": "^1.2.0",
     "spryker/synchronizationBehavior": "^0.1.0"
   },
   "autoload": {
