@@ -365,18 +365,20 @@ protected function setGeneratedKey()
     protected function addSendToQueueMethod()
     {
         $queueName = $this->getParameter('queue_group')['value'];
-
-        $assignMessageToStore = '';
-        $assignMessageToQueuePool = '';
-
         $queuePoolName = $this->getQueuePoolName();
-        if ($queuePoolName) {
-            $assignMessageToQueuePool =  "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
+        $hasStore = $this->hasStore();
+
+        // TODO: after Ehsan's ticket is merged, throw an exception when both parameter is defined
+        if ($hasStore && $queuePoolName) {
         }
 
-        if ($this->hasStore() && !$queuePoolName) {
-            // TODO: after Ehsan's ticket is merged, throw an exception when both parameter is defined
-            $assignMessageToStore = "\$queueSendTransfer->setStoreName(\$this->store);";
+        $setMessageQueueRouting = '';
+        if ($hasStore) {
+            $setMessageQueueRouting = "\$queueSendTransfer->setStoreName(\$this->store);";
+        }
+
+        if ($queuePoolName) {
+            $setMessageQueueRouting =  "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
         }
 
         if ($queueName === null) {
@@ -397,8 +399,7 @@ protected function sendToQueue(array \$message)
     
     \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
     \$queueSendTransfer->setBody(json_encode(\$message));
-    $assignMessageToQueuePool
-    $assignMessageToStore
+    $setMessageQueueRouting
     
     \$queueClient = \$this->_locator->queue()->client();
     \$queueClient->sendMessage('$queueName', \$queueSendTransfer);
