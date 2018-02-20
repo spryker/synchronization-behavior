@@ -366,14 +366,16 @@ protected function setGeneratedKey()
     {
         $queueName = $this->getParameter('queue_group')['value'];
 
-        $setQueuePool = '';
+        $assignMessageToStore = '';
+        $assignMessageToQueuePool = '';
+
         $queuePoolName = $this->getQueuePoolName();
         if ($queuePoolName) {
-            $setQueuePool =  "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
+            $assignMessageToQueuePool =  "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
         }
 
-        $assignMessageToStore = '';
         if ($this->hasStore() && !$queuePoolName) {
+            // TODO: after Ehsan's ticket is merged, throw an exception when both parameter is defined
             $assignMessageToStore = "\$queueSendTransfer->setStoreName(\$this->store);";
         }
 
@@ -395,7 +397,7 @@ protected function sendToQueue(array \$message)
     
     \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
     \$queueSendTransfer->setBody(json_encode(\$message));
-    $setQueuePool
+    $assignMessageToQueuePool
     $assignMessageToStore
     
     \$queueClient = \$this->_locator->queue()->client();
