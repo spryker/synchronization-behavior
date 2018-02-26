@@ -9,7 +9,7 @@
     "spryker/zend": "^2.1.0"
   },
   "require-dev" : {
-    "spryker/synchronization": "^0.1.0"
+    "spryker/synchronization": "^0.1.0 || ^0.2.0"
   },
   "suggest": {
     "spryker/synchronization": "*"
