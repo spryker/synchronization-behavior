@@ -368,17 +368,13 @@ protected function setGeneratedKey()
         $queuePoolName = $this->getQueuePoolName();
         $hasStore = $this->hasStore();
 
-        // TODO: after Ehsan's ticket is merged, throw an exception when both parameter is defined
-        if ($hasStore && $queuePoolName) {
-        }
-
-        $setMessageQueueRouting = '';
+        $setMessageQueueRoutingStatement = '';
         if ($hasStore) {
-            $setMessageQueueRouting = "\$queueSendTransfer->setStoreName(\$this->store);";
+            $setMessageQueueRoutingStatement = "\$queueSendTransfer->setStoreName(\$this->store);";
         }
 
         if ($queuePoolName) {
-            $setMessageQueueRouting =  "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
+            $setMessageQueueRoutingStatement =  "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
         }
 
         if ($queueName === null) {
@@ -399,7 +395,7 @@ protected function sendToQueue(array \$message)
     
     \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
     \$queueSendTransfer->setBody(json_encode(\$message));
-    $setMessageQueueRouting
+    $setMessageQueueRoutingStatement
     
     \$queueClient = \$this->_locator->queue()->client();
     \$queueClient->sendMessage('$queueName', \$queueSendTransfer);
