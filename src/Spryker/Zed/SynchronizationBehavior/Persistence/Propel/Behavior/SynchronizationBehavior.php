@@ -21,6 +21,7 @@ class SynchronizationBehavior extends Behavior
     protected $parameters = [
         'resource' => null,
         'queue_group' => null,
+        'queue_pool' => null,
     ];
 
     /**
@@ -364,6 +365,21 @@ protected function setGeneratedKey()
     protected function addSendToQueueMethod()
     {
         $queueName = $this->getParameter('queue_group')['value'];
+        $queuePoolName = $this->getQueuePoolName();
+        $hasStore = $this->hasStore();
+
+        // TODO: after Ehsan's ticket is merged, throw an exception when both parameter is defined
+        if ($hasStore && $queuePoolName) {
+        }
+
+        $setMessageQueueRouting = '';
+        if ($hasStore) {
+            $setMessageQueueRouting = "\$queueSendTransfer->setStoreName(\$this->store);";
+        }
+
+        if ($queuePoolName) {
+            $setMessageQueueRouting =  "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
+        }
 
         if ($queueName === null) {
             $queueName = $this->getParameter('resource')['value'];
@@ -383,6 +399,7 @@ protected function sendToQueue(array \$message)
     
     \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
     \$queueSendTransfer->setBody(json_encode(\$message));
+    $setMessageQueueRouting
     
     \$queueClient = \$this->_locator->queue()->client();
     \$queueClient->sendMessage('$queueName', \$queueSendTransfer);
@@ -479,6 +496,31 @@ public function syncUnpublishedMessage()
     \$this->sendToQueue(\$message);
 }        
         ";
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasStore()
+    {
+        return isset($this->getParameters()['store']);
+    }
+
+    /**
+     * @return string|null
+     */
+    protected function getQueuePoolName()
+    {
+        $parameters = $this->getParameters();
+        if (!isset($parameters['queue_pool'])) {
+            return null;
+        }
+
+        if (!isset($parameters['queue_pool']['value'])) {
+            return null;
+        }
+
+        return $parameters['queue_pool']['value'];
     }
 
     /**
