@@ -10,11 +10,15 @@ namespace Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior;
 use Propel\Generator\Model\Behavior;
 use Propel\Generator\Model\Unique;
 use Propel\Generator\Util\PhpParser;
+use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException;
 use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\MissingAttributeException;
 use Zend\Filter\Word\UnderscoreToCamelCase;
 
 class SynchronizationBehavior extends Behavior
 {
+    const ERROR_MISSING_RESOURCE_PARAMETER = '%s misses "resource" synchronization parameter.';
+    const ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS = '%s uses mutually exclusive "store" and "queue_pool" synchronization attributes.';
+
     /**
      * @var array
      */
@@ -256,7 +260,7 @@ protected function getStorageKeyBuilder(\$resource)
         $referenceSetStatement = '';
 
         if (!isset($parameters['resource']['value'])) {
-            throw new MissingAttributeException('"resource" parameter with default value is not defined in synchronization behavior');
+            throw new MissingAttributeException(sprintf(static::ERROR_MISSING_RESOURCE_PARAMETER, $this->getTable()->getPhpName()));
         }
 
         $resource = $parameters['resource']['value'];
@@ -364,6 +368,8 @@ protected function setGeneratedKey()
     }
 
     /**
+     * @throws InvalidConfigurationException
+     *
      * @return string
      */
     protected function addSendToQueueMethod()
@@ -372,8 +378,10 @@ protected function setGeneratedKey()
         $queuePoolName = $this->getQueuePoolName();
         $hasStore = $this->hasStore();
 
-        // TODO: after Ehsan's ticket is merged, throw an exception when both parameter is defined
         if ($hasStore && $queuePoolName) {
+            throw new InvalidConfigurationException(
+                sprintf(static::ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS, $this->getTable()->getPhpName())
+            );
         }
 
         $setMessageQueueRouting = '';
