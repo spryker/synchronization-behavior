@@ -205,10 +205,14 @@ public function isSendingToQueue()
 
 /**
  * @param bool \$_isSendingToQueue
+ *
+ * @return \$this
  */
 public function setIsSendingToQueue(\$_isSendingToQueue)
 {
     \$this->_isSendingToQueue = \$_isSendingToQueue;
+    
+    return \$this;
 }        
         ";
     }
