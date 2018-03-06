@@ -9,10 +9,12 @@
     "spryker/zend": "^2.1.0"
   },
   "require-dev" : {
+    "spryker/queue": "^1.2.0",
     "spryker/synchronization": "^0.1.0 || ^0.2.0"
   },
   "suggest": {
-    "spryker/synchronization": "*"
+    "spryker/queue": "Generated classes are using spryker/queue module.",
+    "spryker/synchronization": "Generated classes are using spryker/synchronization module."
   },
   "autoload": {
     "psr-4": {
