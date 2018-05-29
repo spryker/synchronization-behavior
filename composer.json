@@ -4,7 +4,7 @@
   "description": "SynchronizationBehavior module",
   "license": "proprietary",
   "require": {
-    "spryker/kernel": "^3.21.0",
+    "spryker/kernel": "^3.20.0",
     "spryker/propel-orm": "^1.6.0",
     "spryker/zend": "^2.1.0"
   },
