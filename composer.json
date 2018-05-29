@@ -9,6 +9,7 @@
     "spryker/zend": "^2.1.0"
   },
   "require-dev" : {
+    "spryker/code-sniffer": "*",
     "spryker/queue": "^1.1.0",
     "spryker/synchronization": "^0.1.0 || ^0.2.0"
   },
@@ -16,9 +17,17 @@
     "spryker/queue": "Generated classes are using spryker/queue module.",
     "spryker/synchronization": "Generated classes are using spryker/synchronization module."
   },
+  "support": {
+    "source": "https://github.com/spryker/synchronization-behavior"
+  },
   "autoload": {
     "psr-4": {
       "Spryker\\": "src/Spryker/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "SprykerTest\\": "tests/SprykerTest/"
     }
   },
   "minimum-stability": "dev",
@@ -32,5 +41,10 @@
   },
   "config": {
     "sort-packages": true
-  }
+  },
+  "scripts": {
+    "cs-check": "phpcs --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -v --ignore=/synchronization-behavior/vendor/,/templates/ ./",
+    "cs-fix": "phpcbf --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -v --ignore=/synchronization-behavior/vendor/,/templates/ ./"
+  },
+  "include-path":  ["src/"]
 }
