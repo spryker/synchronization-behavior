@@ -368,7 +368,7 @@ protected function setGeneratedKey()
     }
 
     /**
-     * @throws InvalidConfigurationException
+     * @throws \Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException
      *
      * @return string
      */
@@ -390,7 +390,7 @@ protected function setGeneratedKey()
         }
 
         if ($queuePoolName) {
-            $setMessageQueueRouting =  "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
+            $setMessageQueueRouting = "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
         }
 
         if ($queueName === null) {
