@@ -135,7 +135,7 @@ class SynchronizationBehavior extends Behavior
                 $table->addColumn([
                     'name' => 'store',
                     'type' => 'VARCHAR',
-                    'size' => '4',
+                    'size' => '128',
                     'required' => $required,
                 ]);
             }
