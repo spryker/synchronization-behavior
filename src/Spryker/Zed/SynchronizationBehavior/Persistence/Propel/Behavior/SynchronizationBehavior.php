@@ -10,17 +10,22 @@ namespace Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior;
 use Propel\Generator\Model\Behavior;
 use Propel\Generator\Model\Unique;
 use Propel\Generator\Util\PhpParser;
+use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException;
 use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\MissingAttributeException;
 use Zend\Filter\Word\UnderscoreToCamelCase;
 
 class SynchronizationBehavior extends Behavior
 {
+    const ERROR_MISSING_RESOURCE_PARAMETER = '%s misses "resource" synchronization parameter.';
+    const ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS = '%s uses mutually exclusive "store" and "queue_pool" synchronization attributes.';
+
     /**
      * @var array
      */
     protected $parameters = [
         'resource' => null,
         'queue_group' => null,
+        'queue_pool' => null,
     ];
 
     /**
@@ -130,7 +135,7 @@ class SynchronizationBehavior extends Behavior
                 $table->addColumn([
                     'name' => 'store',
                     'type' => 'VARCHAR',
-                    'size' => '4',
+                    'size' => '128',
                     'required' => $required,
                 ]);
             }
@@ -204,10 +209,14 @@ public function isSendingToQueue()
 
 /**
  * @param bool \$_isSendingToQueue
+ *
+ * @return \$this
  */
 public function setIsSendingToQueue(\$_isSendingToQueue)
 {
     \$this->_isSendingToQueue = \$_isSendingToQueue;
+    
+    return \$this;
 }        
         ";
     }
@@ -251,7 +260,7 @@ protected function getStorageKeyBuilder(\$resource)
         $referenceSetStatement = '';
 
         if (!isset($parameters['resource']['value'])) {
-            throw new MissingAttributeException('"resource" parameter with default value is not defined in synchronization behavior');
+            throw new MissingAttributeException(sprintf(static::ERROR_MISSING_RESOURCE_PARAMETER, $this->getTable()->getPhpName()));
         }
 
         $resource = $parameters['resource']['value'];
@@ -359,11 +368,30 @@ protected function setGeneratedKey()
     }
 
     /**
+     * @throws \Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException
+     *
      * @return string
      */
     protected function addSendToQueueMethod()
     {
         $queueName = $this->getParameter('queue_group')['value'];
+        $queuePoolName = $this->getQueuePoolName();
+        $hasStore = $this->hasStore();
+
+        if ($hasStore && $queuePoolName) {
+            throw new InvalidConfigurationException(
+                sprintf(static::ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS, $this->getTable()->getPhpName())
+            );
+        }
+
+        $setMessageQueueRouting = '';
+        if ($hasStore) {
+            $setMessageQueueRouting = "\$queueSendTransfer->setStoreName(\$this->store);";
+        }
+
+        if ($queuePoolName) {
+            $setMessageQueueRouting = "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
+        }
 
         if ($queueName === null) {
             $queueName = $this->getParameter('resource')['value'];
@@ -383,6 +411,7 @@ protected function sendToQueue(array \$message)
     
     \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
     \$queueSendTransfer->setBody(json_encode(\$message));
+    $setMessageQueueRouting
     
     \$queueClient = \$this->_locator->queue()->client();
     \$queueClient->sendMessage('$queueName', \$queueSendTransfer);
@@ -479,6 +508,31 @@ public function syncUnpublishedMessage()
     \$this->sendToQueue(\$message);
 }        
         ";
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasStore()
+    {
+        return isset($this->getParameters()['store']);
+    }
+
+    /**
+     * @return string|null
+     */
+    protected function getQueuePoolName()
+    {
+        $parameters = $this->getParameters();
+        if (!isset($parameters['queue_pool'])) {
+            return null;
+        }
+
+        if (!isset($parameters['queue_pool']['value'])) {
+            return null;
+        }
+
+        return $parameters['queue_pool']['value'];
     }
 
     /**
