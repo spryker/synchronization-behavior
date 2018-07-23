@@ -303,7 +303,7 @@ protected function setGeneratedKey()
     /**
      * @param string $script
      *
-     * @return string
+     * @return void
      */
     public function objectFilter(&$script)
     {
