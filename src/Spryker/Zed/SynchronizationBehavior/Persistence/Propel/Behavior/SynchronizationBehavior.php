@@ -350,9 +350,9 @@ protected function setMappingResourceGeneratedKey()
 
         $resource = $parameters['resource']['value'];
 
-        if (isset($parameters['mapping_resource_suffix_column'])) {
+        if (isset($parameters['mapping_resource_key_suffix_column'])) {
             $filter = new UnderscoreToCamelCase();
-            $keySuffix = sprintf('get%s()', $filter->filter($parameters['mapping_resource_suffix_column']['value']));
+            $keySuffix = sprintf('get%s()', $filter->filter($parameters['mapping_resource_key_suffix_column']['value']));
             $checkSuffixStatement = "if (empty(\$this->$keySuffix)) {
          return;       
     }
@@ -531,6 +531,7 @@ protected function sendToQueue(array \$message)
                 'key' => \$this->getMappingResourceKey(),
                 'value' => [
                     'key' => \$this->getKey(),
+                    '_timestamp' => microtime(true),
                 ],
                 'resource' => '$resource',
                 'params' => \$decodedParams,
@@ -601,7 +602,10 @@ public function syncPublishedMessage()
         \$message = [
             'delete' => [
                 'key' => \$this->getMappingResourceKey(),
-                'value' => \$data,
+                'value' => [
+                    'key' => \$this->getKey(),
+                    '_timestamp' => microtime(true),
+                ],
                 'resource' => '$resource',
                 'params' => \$decodedParams,
             ]
