@@ -36,7 +36,7 @@ class SynchronizationBehavior extends Behavior
     {
         return "
 \$this->setGeneratedKey();
-\$this->setMappingResourceGeneratedKey();        
+\$this->setGeneratedKeyForMappingResource();        
         ";
     }
 
@@ -46,7 +46,8 @@ class SynchronizationBehavior extends Behavior
     public function postSave()
     {
         return "
-\$this->syncPublishedMessage();        
+\$this->syncPublishedMessage();
+\$this->syncPublishedMessageForMappingResource();   
         ";
     }
 
@@ -57,6 +58,7 @@ class SynchronizationBehavior extends Behavior
     {
         return "
 \$this->syncUnpublishedMessage();        
+\$this->syncUnpublishedMessageForMappingResource();        
         ";
     }
 
@@ -109,6 +111,8 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addSendToQueueMethod();
         $script .= $this->addSyncPublishedMessageMethod();
         $script .= $this->addSyncUnpublishedMessageMethod();
+        $script .= $this->addSyncPublishedMessageForMappingResourceMethod();
+        $script .= $this->addSyncUnpublishedMessageForMappingResourceMethod();
 
         return $script;
     }
@@ -160,18 +164,6 @@ class SynchronizationBehavior extends Behavior
             }
         }
 
-        if (!$table->hasColumn('key')) {
-            $table->addColumn([
-                'name' => 'key',
-                'type' => 'VARCHAR',
-            ]);
-
-            $uniqueIndex = new Unique();
-            $uniqueIndex->setName($table->getName() . '-unique-key');
-            $uniqueIndex->addColumn($table->getColumn('key'));
-            $table->addUnique($uniqueIndex);
-        }
-
         if (isset($parameters['mapping_resource'])) {
             if (!$table->hasColumn('mapping_resource_key')) {
                 $table->addColumn([
@@ -183,6 +175,18 @@ class SynchronizationBehavior extends Behavior
                 $uniqueIndex->addColumn($table->getColumn('mapping_resource_key'));
                 $table->addUnique($uniqueIndex);
             }
+        }
+
+        if (!$table->hasColumn('key')) {
+            $table->addColumn([
+                'name' => 'key',
+                'type' => 'VARCHAR',
+            ]);
+
+            $uniqueIndex = new Unique();
+            $uniqueIndex->setName($table->getName() . '-unique-key');
+            $uniqueIndex->addColumn($table->getColumn('key'));
+            $table->addUnique($uniqueIndex);
         }
     }
 
@@ -271,8 +275,8 @@ protected function getStorageKeyBuilder(\$resource)
     {
         $parameters = $this->getParameters();
         $keySuffix = null;
-        $storeSetStatement = '';
-        $localeSetStatement = '';
+        $storeSetStatement = $this->getStoreStatement($parameters);
+        $localeSetStatement = $this->getLocaleStatement($parameters);
         $referenceSetStatement = '';
 
         if (!isset($parameters['resource']['value'])) {
@@ -284,14 +288,6 @@ protected function getStorageKeyBuilder(\$resource)
         if (isset($parameters['key_suffix_column'])) {
             $filter = new UnderscoreToCamelCase();
             $keySuffix = sprintf('get%s()', $filter->filter($parameters['key_suffix_column']['value']));
-        }
-
-        if (isset($parameters['store'])) {
-            $storeSetStatement = "\$syncTransferData->setStore(\$this->store);";
-        }
-
-        if (isset($parameters['locale'])) {
-            $localeSetStatement = "\$syncTransferData->setLocale(\$this->locale);";
         }
 
         if ($keySuffix !== null) {
@@ -328,13 +324,13 @@ protected function setGeneratedKey()
             return '/**
  * @return void
  */
-protected function setMappingResourceGeneratedKey()
+protected function setGeneratedKeyForMappingResource()
 {
 }';
         }
         $keySuffix = null;
-        $storeSetStatement = '';
-        $localeSetStatement = '';
+        $storeSetStatement = $this->getStoreStatement($parameters);
+        $localeSetStatement = $this->getLocaleStatement($parameters);
         $referenceSetStatement = '';
         $checkSuffixStatement = '';
 
@@ -359,14 +355,6 @@ protected function setMappingResourceGeneratedKey()
             ";
         }
 
-        if (isset($parameters['store'])) {
-            $storeSetStatement = "\$syncTransferData->setStore(\$this->store);";
-        }
-
-        if (isset($parameters['locale'])) {
-            $localeSetStatement = "\$syncTransferData->setLocale(\$this->locale);";
-        }
-
         if ($keySuffix !== null) {
             $referenceSetStatement = "\$syncTransferData->setReference($mappingResourceSuffix);";
         }
@@ -379,7 +367,7 @@ protected function setMappingResourceGeneratedKey()
 /**
  * @return void
  */
-protected function setMappingResourceGeneratedKey()
+protected function setGeneratedKeyForMappingResource()
 {
     $checkSuffixStatement
     \$syncTransferData = new \\Generated\\Shared\\Transfer\\SynchronizationDataTransfer();
@@ -520,27 +508,7 @@ protected function sendToQueue(array \$message)
     {
         $params = $this->getParams();
         $resource = $this->getParameter('resource')['value'];
-        $parameters = $this->getParameters();
 
-        $sendMappingStatement = '';
-        if (isset($parameters['mapping_resource'])) {
-            $sendMappingStatement = "
-    if (!empty(\$this->getMappingResourceKey())) {
-        \$message = [
-            'write' => [
-                'key' => \$this->getMappingResourceKey(),
-                'value' => [
-                    'key' => \$this->getKey(),
-                    '_timestamp' => microtime(true),
-                ],
-                'resource' => '$resource',
-                'params' => \$decodedParams,
-            ]
-        ];
-        \$this->sendToQueue(\$message);
-    }
-            ";
-        }
         return "
 /**
  * @throws PropelException
@@ -580,7 +548,6 @@ public function syncPublishedMessage()
         ]
     ];
     \$this->sendToQueue(\$message);
-    $sendMappingStatement
 }        
         ";
     }
@@ -592,29 +559,6 @@ public function syncPublishedMessage()
     {
         $params = $this->getParams();
         $resource = $this->getParameter('resource')['value'];
-
-        $parameters = $this->getParameters();
-
-        $sendMappingStatement = '';
-        if (isset($parameters['mapping_resource'])) {
-            $sendMappingStatement = "
-    if (!empty(\$this->getMappingResourceKey())) {
-        \$message = [
-            'delete' => [
-                'key' => \$this->getMappingResourceKey(),
-                'value' => [
-                    'key' => \$this->getKey(),
-                    '_timestamp' => microtime(true),
-                ],
-                'resource' => '$resource',
-                'params' => \$decodedParams,
-            ]
-        ];
-    
-        \$this->sendToQueue(\$message);
-    }
-            ";
-        }
 
         return "
 /**
@@ -643,9 +587,102 @@ public function syncUnpublishedMessage()
         ]
     ];
 
-    \$this->sendToQueue(\$message);
+    \$this->sendToQueue(\$message); 
+}        
+        ";
+    }
 
-    $sendMappingStatement 
+    /**
+     * @return string
+     */
+    protected function addSyncPublishedMessageForMappingResourceMethod()
+    {
+        $params = $this->getParams();
+        $resource = $this->getParameter('resource')['value'];
+        $behaviorParameters = $this->getParameters();
+
+        $sendMappingStatement = '';
+        if (isset($behaviorParameters['mapping_resource'])) {
+            $sendMappingStatement = "
+    if (!empty(\$this->getMappingResourceKey())) {
+        /* The value for `\$params` has been loaded from schema file */
+        \$params = '$params';
+        \$decodedParams = [];
+        if (!empty(\$params)) {
+            \$decodedParams = json_decode(\$params, true);
+        }
+    
+        \$message = [
+            'write' => [
+                'key' => \$this->getMappingResourceKey(),
+                'value' => [
+                    'key' => \$this->getKey(),
+                    '_timestamp' => microtime(true),
+                ],
+                'resource' => '$resource',
+                'params' => \$decodedParams,
+            ]
+        ];
+        \$this->sendToQueue(\$message);
+    }
+            ";
+        }
+
+        return "
+/**
+ * @return void
+ */
+public function syncPublishedMessageForMappingResource()
+{
+    $sendMappingStatement;
+}        
+        ";
+    }
+
+    /**
+     * @return string
+     */
+    protected function addSyncUnpublishedMessageForMappingResourceMethod()
+    {
+        $params = $this->getParams();
+        $behaviorParameters = $this->getParameters();
+        $resource = $this->getParameter('resource')['value'];
+
+        $sendMappingStatement = '';
+        if (isset($behaviorParameters['mapping_resource'])) {
+            $sendMappingStatement = "
+    if (!empty(\$this->getMappingResourceKey())) {
+        /* The value for `\$params` has been loaded from schema file */
+        \$params = '$params';
+        \$decodedParams = [];
+        if (!empty(\$params)) {
+            \$decodedParams = json_decode(\$params, true);
+        }
+    
+        \$message = [
+            'delete' => [
+                'key' => \$this->getMappingResourceKey(),
+                'value' => [
+                    'key' => \$this->getKey(),
+                    '_timestamp' => microtime(true),
+                ],
+                'resource' => '$resource',
+                'params' => \$decodedParams,
+            ]
+        ];
+    
+        \$this->sendToQueue(\$message);
+    }
+            ";
+        }
+
+        return "
+/**
+ * @return void
+ */
+public function syncUnpublishedMessageForMappingResource()
+{
+    $sendMappingStatement;
 }        
         ";
     }
@@ -686,5 +723,33 @@ public function syncUnpublishedMessage()
         }
 
         return $params;
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return string
+     */
+    protected function getStoreStatement(array $parameters): string
+    {
+        if (isset($parameters['store'])) {
+            return "\$syncTransferData->setStore(\$this->store);";
+        }
+
+        return '';
+    }
+
+    /**
+     * @param array $parameters
+     *
+     * @return string
+     */
+    protected function getLocaleStatement(array $parameters): string
+    {
+        if (isset($parameters['locale'])) {
+            return "\$syncTransferData->setLocale(\$this->locale);";
+        }
+
+        return '';
     }
 }
