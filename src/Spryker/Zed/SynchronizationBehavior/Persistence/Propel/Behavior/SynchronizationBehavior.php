@@ -331,7 +331,6 @@ protected function setGeneratedKeyForMappingResource()
         $keySuffix = null;
         $storeSetStatement = $this->getStoreStatement($parameters);
         $localeSetStatement = $this->getLocaleStatement($parameters);
-        $referenceSetStatement = '';
         $checkSuffixStatement = '';
 
         if (!isset($parameters['resource']['value'])) {
@@ -343,6 +342,7 @@ protected function setGeneratedKeyForMappingResource()
         }
 
         $mappingResourceSuffix = "'{$parameters['mapping_resource']['value']}'";
+        $referenceSetStatement = "\$syncTransferData->setReference($mappingResourceSuffix);";
 
         $resource = $parameters['resource']['value'];
 
@@ -353,10 +353,6 @@ protected function setGeneratedKeyForMappingResource()
          return;       
     }
             ";
-        }
-
-        if ($keySuffix !== null) {
-            $referenceSetStatement = "\$syncTransferData->setReference($mappingResourceSuffix);";
         }
 
         if ($keySuffix !== null) {
