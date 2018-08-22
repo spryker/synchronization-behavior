@@ -18,6 +18,7 @@ class SynchronizationBehavior extends Behavior
 {
     const ERROR_MISSING_RESOURCE_PARAMETER = '%s misses "resource" synchronization parameter.';
     const ERROR_MISSING_MAPPING_RESOURCE_PARAMETER = '%s misses "mapping_resource" synchronization parameter.';
+    const ERROR_MISSING_MAPPINGS_PARAMETER = '%s misses "mappings" synchronization parameter.';
     const ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS = '%s uses mutually exclusive "store" and "queue_pool" synchronization attributes.';
 
     /**
@@ -48,6 +49,7 @@ class SynchronizationBehavior extends Behavior
         return "
 \$this->syncPublishedMessage();
 \$this->syncPublishedMessageForMappingResource();   
+\$this->syncPublishedMessageForMappings();   
         ";
     }
 
@@ -59,6 +61,7 @@ class SynchronizationBehavior extends Behavior
         return "
 \$this->syncUnpublishedMessage();        
 \$this->syncUnpublishedMessageForMappingResource();        
+\$this->syncUnpublishedMessageForMappings();        
         ";
     }
 
@@ -108,11 +111,14 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addGetStorageKeyBuilderMethod();
         $script .= $this->addGenerateKeyMethod();
         $script .= $this->addGenerateMappingResourceKeyMethod();
+        $script .= $this->addGenerateMappingsKeyMethod();
         $script .= $this->addSendToQueueMethod();
         $script .= $this->addSyncPublishedMessageMethod();
         $script .= $this->addSyncUnpublishedMessageMethod();
         $script .= $this->addSyncPublishedMessageForMappingResourceMethod();
         $script .= $this->addSyncUnpublishedMessageForMappingResourceMethod();
+        $script .= $this->addSyncPublishedMessageForMappingsMethod();
+        $script .= $this->addSyncUnpublishedMessageForMappingsMethod();
 
         return $script;
     }
@@ -684,6 +690,129 @@ public function syncUnpublishedMessageForMappingResource()
     }
 
     /**
+     * @return string
+     */
+    protected function addSyncPublishedMessageForMappingsMethod()
+    {
+        $parameters = $this->getParameters();
+        $resource = $this->getParameter('resource')['value'];
+        $sendMappingsStatement = '';
+        if (isset($parameters['mappings'])) {
+            $mappings = $this->getMappings();
+            $sendMappingsStatement = "\$mappings = $mappings;
+    foreach (\$mappings as \$mapping) {
+        \$data = \$this->getData(); 
+        \$source = \$mapping['source'];
+        \$destination = \$mapping['destination'];
+        if (isset(\$data[\$source]) && isset(\$data[\$destination])) {
+            \$message = [
+                'write' => [
+                    'key' => \$this->generateMappingKey(\$source, \$data[\$source]),
+                    'value' => [
+                        'id' => \$data[\$destination],
+                        '_timestamp' => microtime(true),
+                    ],
+                    'resource' => '$resource',
+                ]
+            ];
+            \$this->sendToQueue(\$message);
+        }
+    }
+            ";
+        }
+
+        return "
+/**
+ * @return void
+ */
+public function syncPublishedMessageForMappings()
+{
+    $sendMappingsStatement
+}        
+        ";
+    }
+
+    /**
+     * @return string
+     */
+    protected function addSyncUnpublishedMessageForMappingsMethod()
+    {
+        $parameters = $this->getParameters();
+        $resource = $this->getParameter('resource')['value'];
+        $sendMappingsStatement = '';
+        if (isset($parameters['mappings'])) {
+            $mappings = $this->getMappings();
+            $sendMappingsStatement = "\$mappings = $mappings;
+    foreach (\$mappings as \$mapping) {
+        \$data = \$this->getData(); 
+        \$source = \$mapping['source'];
+        \$destination = \$mapping['destination'];
+        if (isset(\$data[\$source]) && isset(\$data[\$destination])) {
+            \$message = [
+                'delete' => [
+                    'key' => \$this->generateMappingKey(\$source, \$data[\$source]),
+                    'value' => [
+                        'id' => \$data[\$destination],
+                        '_timestamp' => microtime(true),
+                    ],
+                    'resource' => '$resource',
+                ]
+            ];
+            \$this->sendToQueue(\$message);
+        }
+    }
+            ";
+        }
+
+        return "
+/**
+ * @return void
+ */
+public function syncUnpublishedMessageForMappings()
+{
+    $sendMappingsStatement
+}        
+        ";
+    }
+
+    /**
+     * @throws \Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\MissingAttributeException
+     *
+     * @return string
+     */
+    protected function addGenerateMappingsKeyMethod()
+    {
+        $parameters = $this->getParameters();
+        $storeSetStatement = $this->getStoreStatement($parameters);
+        $localeSetStatement = $this->getLocaleStatement($parameters);
+
+        if (!isset($parameters['resource']['value'])) {
+            throw new MissingAttributeException(sprintf(static::ERROR_MISSING_RESOURCE_PARAMETER, $this->getTable()->getPhpName()));
+        }
+
+        $resource = $parameters['resource']['value'];
+
+        return "
+/**
+ * @param string \$source
+ * @param string \$sourceIdentifier
+ 
+ * @return string
+ */
+protected function generateMappingKey(\$source, \$sourceIdentifier)
+{
+    \$syncTransferData = new \\Generated\\Shared\\Transfer\\SynchronizationDataTransfer();
+    \$syncTransferData->setReference(\$source . ':' . \$sourceIdentifier);
+    $storeSetStatement
+    $localeSetStatement    
+    \$keyBuilder = \$this->getStorageKeyBuilder('$resource');
+
+    return \$keyBuilder->generateKey(\$syncTransferData);
+}        
+        ";
+    }
+
+    /**
      * @return bool
      */
     protected function hasStore()
@@ -747,5 +876,30 @@ public function syncUnpublishedMessageForMappingResource()
         }
 
         return '';
+    }
+
+    /**
+     * @throws \Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\MissingAttributeException
+     *
+     * @return string
+     */
+    protected function getMappings(): string
+    {
+        $parameters = $this->getParameters();
+        $mappings = [];
+        if (isset($parameters['mappings'])) {
+            if (!isset($parameters['mappings']['value'])) {
+                throw new MissingAttributeException(sprintf(static::ERROR_MISSING_MAPPINGS_PARAMETER, $this->getTable()->getPhpName()));
+            }
+            $mappingsParts = explode(':', $parameters['mappings']['value']);
+
+            $mappings = "[
+        [
+            'source' => '{$mappingsParts[0]}',
+            'destination' => '{$mappingsParts[1]}',
+        ],
+    ]";
+        }
+        return $mappings;
     }
 }
