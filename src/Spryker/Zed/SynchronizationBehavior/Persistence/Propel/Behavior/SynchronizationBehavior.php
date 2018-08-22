@@ -20,6 +20,7 @@ class SynchronizationBehavior extends Behavior
     const ERROR_MISSING_MAPPING_RESOURCE_PARAMETER = '%s misses "mapping_resource" synchronization parameter.';
     const ERROR_MISSING_MAPPINGS_PARAMETER = '%s misses "mappings" synchronization parameter.';
     const ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS = '%s uses mutually exclusive "store" and "queue_pool" synchronization attributes.';
+    const ERROR_INVALID_MAPPINGS_PARAMETER = '%s define incorrect value of mappings parameter.';
 
     /**
      * @var array
@@ -880,6 +881,7 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
 
     /**
      * @throws \Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\MissingAttributeException
+     * @throws \Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException
      *
      * @return string
      */
@@ -892,6 +894,11 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
                 throw new MissingAttributeException(sprintf(static::ERROR_MISSING_MAPPINGS_PARAMETER, $this->getTable()->getPhpName()));
             }
             $mappingsParts = explode(':', $parameters['mappings']['value']);
+            if (count($mappingsParts) !== 2) {
+                throw new InvalidConfigurationException(
+                    sprintf(static::ERROR_INVALID_MAPPINGS_PARAMETER, $this->getTable()->getPhpName())
+                );
+            }
 
             $mappings = "[
         [
