@@ -8,8 +8,6 @@
 namespace SprykerTest\Zed\SynchronizationBehavior\Persistence\Propel\Behavior;
 
 use Codeception\Test\Unit;
-use Propel\Generator\Util\QuickBuilder as PropelQuickBuilder;
-use TestMain;
 
 /**
  * Auto-generated group annotations
