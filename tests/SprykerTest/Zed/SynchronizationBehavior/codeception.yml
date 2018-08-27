@@ -12,12 +12,9 @@ coverage:
     whitelist: { include: ['../../../../src/*'] }
 
 suites:
-    Business:
+    Persistence:
         path: Persistence/Propel/Behavior
         class_name: SynchronizationBehaviorTester
         modules:
             enabled:
                 - Asserts
-                - \SprykerTest\Shared\Testify\Helper\ConfigHelper
-                - \SprykerTest\Shared\Testify\Helper\LocatorHelper
-                - \SprykerTest\Shared\Testify\Helper\DependencyHelper

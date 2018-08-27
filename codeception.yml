@@ -1,5 +1,9 @@
 namespace: SynchronizationBehavior
 actor: Tester
+
+include:
+    - tests/SprykerTest/Zed/SynchronizationBehavior
+
 paths:
     tests: tests
     log: tests/_output
