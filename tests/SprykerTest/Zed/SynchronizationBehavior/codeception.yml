@@ -1,0 +1,20 @@
+namespace: SprykerTest\Zed\SynchronizationBehavior
+
+paths:
+    tests: .
+    data: ../../../_data
+    support: _support
+    log: ../../../_output
+
+coverage:
+    enabled: true
+    remote: false
+    whitelist: { include: ['../../../../src/*'] }
+
+suites:
+    Business:
+        path: Persistence/Propel/Behavior
+        class_name: SynchronizationBehaviorTester
+        modules:
+            enabled:
+                - Asserts
