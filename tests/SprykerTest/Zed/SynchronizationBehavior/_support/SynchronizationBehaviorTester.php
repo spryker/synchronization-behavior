@@ -1,5 +1,13 @@
 <?php
+
+/**
+ * Copyright © 2016-present Spryker Systems GmbH. All rights reserved.
+ * Use of this software requires acceptance of the Evaluation License Agreement. See LICENSE file.
+ */
+
 namespace SprykerTest\Zed\SynchronizationBehavior;
+
+use Codeception\Actor;
 
 /**
  * Inherited Methods
@@ -15,8 +23,8 @@ namespace SprykerTest\Zed\SynchronizationBehavior;
  * @method \Codeception\Lib\Friend haveFriend($name, $actorClass = NULL)
  *
  * @SuppressWarnings(PHPMD)
-*/
-class SynchronizationBehaviorTester extends \Codeception\Actor
+ */
+class SynchronizationBehaviorTester extends Actor
 {
     use _generated\SynchronizationBehaviorTesterActions;
 
