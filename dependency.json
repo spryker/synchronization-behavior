@@ -1,0 +1,6 @@
+{
+  "include": {
+    "Synchronization": "Synchronization only used within templates.",
+    "Queue": "Synchronization only used within templates."
+  }
+}
