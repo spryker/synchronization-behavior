@@ -828,7 +828,7 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
     /**
      * @return bool
      */
-    protected function hasLocale()
+    protected function hasLocale(): bool
     {
         return isset($this->getParameters()['locale']);
     }
