@@ -462,12 +462,15 @@ protected function setGeneratedKeyForMappingResource()
         $queueName = $this->getParameter('queue_group')['value'];
         $queuePoolName = $this->getQueuePoolName();
         $hasStore = $this->hasStore();
+        $hasLocale = $this->hasLocale();
 
         if ($hasStore && $queuePoolName) {
             throw new InvalidConfigurationException(
                 sprintf(static::ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS, $this->getTable()->getPhpName())
             );
         }
+
+        $setLocale = $hasLocale ? '$queueSendTransfer->setLocale($this->locale);' : '';
 
         $setMessageQueueRouting = '';
         if ($hasStore) {
@@ -496,6 +499,7 @@ protected function sendToQueue(array \$message)
     
     \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
     \$queueSendTransfer->setBody(json_encode(\$message));
+    $setLocale
     $setMessageQueueRouting
     
     \$queueClient = \$this->_locator->queue()->client();
@@ -819,6 +823,14 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
     protected function hasStore()
     {
         return isset($this->getParameters()['store']);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasLocale(): bool
+    {
+        return isset($this->getParameters()['locale']);
     }
 
     /**
