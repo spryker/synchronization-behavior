@@ -4,18 +4,16 @@
   "description": "SynchronizationBehavior module",
   "license": "proprietary",
   "require": {
+    "php": ">=7.1",
     "spryker/kernel": "^3.20.0",
     "spryker/propel-orm": "^1.6.0",
     "spryker/queue": "^1.1.2",
     "spryker/synchronization": "^0.1.0 || ^0.2.0 || ^1.0.0",
     "spryker/zend": "^2.1.0"
   },
-  "require-dev" : {
+  "require-dev": {
     "spryker/code-sniffer": "*",
     "spryker/testify": "*"
-  },
-  "support": {
-    "source": "https://github.com/spryker/synchronization-behavior"
   },
   "autoload": {
     "psr-4": {
@@ -29,6 +27,10 @@
   },
   "minimum-stability": "dev",
   "prefer-stable": true,
+  "scripts": {
+    "cs-check": "phpcs --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -v --ignore=/synchronization-behavior/vendor/,/templates/ ./",
+    "cs-fix": "phpcbf --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -v --ignore=/synchronization-behavior/vendor/,/templates/ ./"
+  },
   "extra": {
     "name": "synchronization",
     "class": "\\Spryker\\Zed\\SynchronizationBehavior\\Persistence\\Propel\\Behavior\\SynchronizationBehavior",
@@ -39,9 +41,10 @@
   "config": {
     "sort-packages": true
   },
-  "scripts": {
-    "cs-check": "phpcs --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -v --ignore=/synchronization-behavior/vendor/,/templates/ ./",
-    "cs-fix": "phpcbf --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -v --ignore=/synchronization-behavior/vendor/,/templates/ ./"
+  "support": {
+    "source": "https://github.com/spryker/synchronization-behavior"
   },
-  "include-path":  ["src/"]
+  "include-path": [
+    "src/"
+  ]
 }

@@ -16,11 +16,11 @@ use Zend\Filter\Word\UnderscoreToCamelCase;
 
 class SynchronizationBehavior extends Behavior
 {
-    const ERROR_MISSING_RESOURCE_PARAMETER = '%s misses "resource" synchronization parameter.';
-    const ERROR_MISSING_MAPPING_RESOURCE_PARAMETER = '%s misses "mapping_resource" synchronization parameter.';
-    const ERROR_MISSING_MAPPINGS_PARAMETER = '%s misses "mappings" synchronization parameter.';
-    const ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS = '%s uses mutually exclusive "store" and "queue_pool" synchronization attributes.';
-    const ERROR_INVALID_MAPPINGS_PARAMETER = '%s define incorrect value of mappings parameter.';
+    public const ERROR_MISSING_RESOURCE_PARAMETER = '%s misses "resource" synchronization parameter.';
+    public const ERROR_MISSING_MAPPING_RESOURCE_PARAMETER = '%s misses "mapping_resource" synchronization parameter.';
+    public const ERROR_MISSING_MAPPINGS_PARAMETER = '%s misses "mappings" synchronization parameter.';
+    public const ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS = '%s uses mutually exclusive "store" and "queue_pool" synchronization attributes.';
+    public const ERROR_INVALID_MAPPINGS_PARAMETER = '%s define incorrect value of mappings parameter.';
 
     /**
      * @var array
