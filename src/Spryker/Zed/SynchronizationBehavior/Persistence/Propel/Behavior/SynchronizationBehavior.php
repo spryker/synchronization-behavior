@@ -940,6 +940,7 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
         ],
     ]";
         }
+
         return $mappings;
     }
 

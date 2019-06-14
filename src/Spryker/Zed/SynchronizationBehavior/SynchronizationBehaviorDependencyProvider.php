@@ -9,6 +9,9 @@ namespace Spryker\Zed\SynchronizationBehavior;
 
 use Spryker\Zed\Kernel\AbstractBundleDependencyProvider;
 
+/**
+ * @method \Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig getConfig()
+ */
 class SynchronizationBehaviorDependencyProvider extends AbstractBundleDependencyProvider
 {
 }
