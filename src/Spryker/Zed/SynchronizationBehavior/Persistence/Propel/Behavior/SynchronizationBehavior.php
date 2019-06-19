@@ -851,7 +851,9 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
      */
     protected function hasMappings(): bool
     {
-        return isset($this->getParameters()['mappings']);
+        $parameters = $this->getParameters();
+
+        return isset($parameters['mapping']);
     }
 
     /**
