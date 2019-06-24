@@ -38,7 +38,8 @@ class SynchronizationBehavior extends Behavior
     {
         return "
 \$this->setGeneratedKey();
-\$this->setGeneratedKeyForMappingResource();        
+\$this->setGeneratedKeyForMappingResource();      
+\$this->setGeneratedAliasKeys();      
         ";
     }
 
@@ -113,6 +114,7 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addGenerateKeyMethod();
         $script .= $this->addGenerateMappingResourceKeyMethod();
         $script .= $this->addGenerateMappingsKeyMethod();
+        $script .= $this->addGenerateAliasKeysMethod();
         $script .= $this->addSendToQueueMethod();
         $script .= $this->addSyncPublishedMessageMethod();
         $script .= $this->addSyncUnpublishedMessageMethod();
@@ -182,6 +184,17 @@ class SynchronizationBehavior extends Behavior
                 $uniqueIndex->addColumn($table->getColumn('mapping_resource_key'));
                 $table->addUnique($uniqueIndex);
             }
+        }
+
+        if (!$table->hasColumn('alias_keys')) {
+            $table->addColumn([
+                'name' => 'alias_keys',
+                'type' => 'VARCHAR',
+            ]);
+            $uniqueIndex = new Unique();
+            $uniqueIndex->setName($table->getName() . '-unique-alias-keys');
+            $uniqueIndex->addColumn($table->getColumn('alias_keys'));
+            $table->addUnique($uniqueIndex);
         }
 
         if (!$table->hasColumn('key')) {
@@ -834,6 +847,16 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
     }
 
     /**
+     * @return bool
+     */
+    protected function hasMappings(): bool
+    {
+        $parameters = $this->getParameters();
+
+        return isset($parameters['mapping']);
+    }
+
+    /**
      * @return string|null
      */
     protected function getQueuePoolName()
@@ -921,5 +944,41 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
         }
 
         return $mappings;
+    }
+
+    /**
+     * @return string
+     */
+    protected function addGenerateAliasKeysMethod(): string
+    {
+        if (!$this->hasMappings()) {
+            return '/**
+ * @return void
+ */
+protected function setGeneratedAliasKeys()
+{
+}';
+        }
+        $mappings = $this->getMappings();
+
+        return "
+/**
+ * @return void
+ */
+protected function setGeneratedAliasKeys()
+{
+    \$mappings = $mappings;
+    \$data = \$this->getData();
+    \$aliasKeys = json_decode(\$this->getAliasKeys()) ?? [];
+    foreach (\$mappings as \$mapping) {
+        \$source = \$mapping['source'];
+        if (isset(\$data[\$source])) {
+            \$aliasKeys[] = \$this->generateMappingKey(\$source, \$data[\$source]);
+        }
+    }
+    \$aliasKeys = json_encode(array_unique(\$aliasKeys));
+    \$this->setAliasKeys(\$aliasKeys);
+}        
+        ";
     }
 }
