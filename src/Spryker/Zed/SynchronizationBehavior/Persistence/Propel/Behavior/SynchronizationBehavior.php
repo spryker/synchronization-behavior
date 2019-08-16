@@ -853,7 +853,7 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
     {
         $parameters = $this->getParameters();
 
-        return isset($parameters['mapping']);
+        return isset($parameters['mappings']);
     }
 
     /**
