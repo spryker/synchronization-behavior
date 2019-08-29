@@ -184,17 +184,17 @@ class SynchronizationBehavior extends Behavior
                 $uniqueIndex->addColumn($table->getColumn('mapping_resource_key'));
                 $table->addUnique($uniqueIndex);
             }
-        }
 
-        if (!$table->hasColumn('alias_keys')) {
-            $table->addColumn([
-                'name' => 'alias_keys',
-                'type' => 'VARCHAR',
-            ]);
-            $uniqueIndex = new Unique();
-            $uniqueIndex->setName($table->getName() . '-unique-alias-keys');
-            $uniqueIndex->addColumn($table->getColumn('alias_keys'));
-            $table->addUnique($uniqueIndex);
+            if (!$table->hasColumn('alias_keys')) {
+                $table->addColumn([
+                    'name' => 'alias_keys',
+                    'type' => 'VARCHAR',
+                ]);
+                $uniqueIndex = new Unique();
+                $uniqueIndex->setName($table->getName() . '-unique-alias-keys');
+                $uniqueIndex->addColumn($table->getColumn('alias_keys'));
+                $table->addUnique($uniqueIndex);
+            }
         }
 
         if (!$table->hasColumn('key')) {
