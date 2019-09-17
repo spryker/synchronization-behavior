@@ -654,6 +654,10 @@ public function syncUnpublishedMessage()
  */
 public function syncPublishedMessageForMappingResource()
 {
+    if (!\$this->_isSendingToQueue) {
+        return;
+    }
+    
     $sendMappingStatement;
 }        
         ";
@@ -702,6 +706,10 @@ public function syncPublishedMessageForMappingResource()
  */
 public function syncUnpublishedMessageForMappingResource()
 {
+    if (!\$this->_isSendingToQueue) {
+        return;
+    }
+
     $sendMappingStatement;
 }        
         ";
@@ -745,6 +753,10 @@ public function syncUnpublishedMessageForMappingResource()
  */
 public function syncPublishedMessageForMappings()
 {
+    if (!\$this->_isSendingToQueue) {
+        return;
+    }
+    
     $sendMappingsStatement
 }        
         ";
@@ -788,6 +800,10 @@ public function syncPublishedMessageForMappings()
  */
 public function syncUnpublishedMessageForMappings()
 {
+    if (!\$this->_isSendingToQueue) {
+        return;
+    }
+    
     $sendMappingsStatement
 }        
         ";
