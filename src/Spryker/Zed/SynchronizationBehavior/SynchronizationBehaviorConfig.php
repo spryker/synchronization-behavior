@@ -11,4 +11,17 @@ use Spryker\Zed\Kernel\AbstractBundleConfig;
 
 class SynchronizationBehaviorConfig extends AbstractBundleConfig
 {
+    /**
+     * Specification:
+     * - Enables/disables synchronization for all the modules.
+     * - This value can be overridden on a per-module basis.
+     *
+     * @api
+     *
+     * @return bool
+     */
+    public function isSynchronizationEnabled(): bool
+    {
+        return true;
+    }
 }

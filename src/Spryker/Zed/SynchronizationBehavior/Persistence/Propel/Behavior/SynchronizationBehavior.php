@@ -10,17 +10,26 @@ namespace Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior;
 use Propel\Generator\Model\Behavior;
 use Propel\Generator\Model\Unique;
 use Propel\Generator\Util\PhpParser;
+use Spryker\Zed\Kernel\BundleConfigResolverAwareTrait;
 use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException;
 use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\MissingAttributeException;
 use Zend\Filter\Word\UnderscoreToCamelCase;
 
+/**
+ * @method \Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig getConfig()
+ */
 class SynchronizationBehavior extends Behavior
 {
+    use BundleConfigResolverAwareTrait;
+
     public const ERROR_MISSING_RESOURCE_PARAMETER = '%s misses "resource" synchronization parameter.';
     public const ERROR_MISSING_MAPPING_RESOURCE_PARAMETER = '%s misses "mapping_resource" synchronization parameter.';
     public const ERROR_MISSING_MAPPINGS_PARAMETER = '%s misses "mappings" synchronization parameter.';
     public const ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS = '%s uses mutually exclusive "store" and "queue_pool" synchronization attributes.';
     public const ERROR_INVALID_MAPPINGS_PARAMETER = '%s define incorrect value of mappings parameter.';
+
+    protected const SYNCHRONIZATION_ENABLED = 'true';
+    protected const SYNCHRONIZATION_DISABLED = 'false';
 
     /**
      * @var array
@@ -122,6 +131,7 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addSyncUnpublishedMessageForMappingResourceMethod();
         $script .= $this->addSyncPublishedMessageForMappingsMethod();
         $script .= $this->addSyncUnpublishedMessageForMappingsMethod();
+        $script .= $this->addIsSynchronizationEnabledMethod();
 
         return $script;
     }
@@ -248,6 +258,8 @@ public function isSendingToQueue()
 }
 
 /**
+ * @deprecated Will be removed without replacement.
+ *
  * @param bool \$_isSendingToQueue
  *
  * @return \$this
@@ -537,6 +549,11 @@ protected function sendToQueue(array \$message)
  */
 public function syncPublishedMessage()
 {
+    if (!\$this->isSynchronizationEnabled()) {
+        return;
+    }
+    
+    // Kept for BC reasons, will be removed in next major.
     if (!\$this->_isSendingToQueue) {
         return;
     }
@@ -586,6 +603,11 @@ public function syncPublishedMessage()
  */
 public function syncUnpublishedMessage()
 {
+    if (!\$this->isSynchronizationEnabled()) {
+        return;
+    }
+    
+    // Kept for BC reasons, will be removed in next major.
     if (!\$this->_isSendingToQueue) {
         return;
     }
@@ -654,7 +676,7 @@ public function syncUnpublishedMessage()
  */
 public function syncPublishedMessageForMappingResource()
 {
-    if (!\$this->_isSendingToQueue) {
+    if (!\$this->isSynchronizationEnabled()) {
         return;
     }
     
@@ -706,7 +728,7 @@ public function syncPublishedMessageForMappingResource()
  */
 public function syncUnpublishedMessageForMappingResource()
 {
-    if (!\$this->_isSendingToQueue) {
+    if (!\$this->isSynchronizationEnabled()) {
         return;
     }
 
@@ -753,7 +775,7 @@ public function syncUnpublishedMessageForMappingResource()
  */
 public function syncPublishedMessageForMappings()
 {
-    if (!\$this->_isSendingToQueue) {
+    if (!\$this->isSynchronizationEnabled()) {
         return;
     }
     
@@ -800,7 +822,7 @@ public function syncPublishedMessageForMappings()
  */
 public function syncUnpublishedMessageForMappings()
 {
-    if (!\$this->_isSendingToQueue) {
+    if (!\$this->isSynchronizationEnabled()) {
         return;
     }
     
@@ -996,5 +1018,39 @@ protected function setGeneratedAliasKeys()
     \$this->setAliasKeys(\$aliasKeys);
 }        
         ";
+    }
+
+    /**
+     * @return string
+     */
+    protected function addIsSynchronizationEnabledMethod(): string
+    {
+        $isSynchronizationEnabled = $this->isSynchronizationEnabled()
+            ? static::SYNCHRONIZATION_ENABLED
+            : static::SYNCHRONIZATION_DISABLED;
+
+        return "
+/**
+ * @return bool
+ */
+public function isSynchronizationEnabled(): bool
+{
+    return $isSynchronizationEnabled;
+}        
+        ";
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isSynchronizationEnabled(): bool
+    {
+        $parameters = $this->getParameters();
+
+        if (isset($parameters['synchronization_enabled']) && isset($parameters['synchronization_enabled']['value'])) {
+            return $parameters['synchronization_enabled']['value'] === static::SYNCHRONIZATION_ENABLED;
+        }
+
+        return $this->getConfig()->isSynchronizationEnabled();
     }
 }
