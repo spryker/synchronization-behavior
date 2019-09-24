@@ -250,6 +250,8 @@ private \$_locator;
     {
         return "
 /**
+ * @deprecated Will be removed without replacement.
+ *
  * @return bool
  */
 public function isSendingToQueue()
