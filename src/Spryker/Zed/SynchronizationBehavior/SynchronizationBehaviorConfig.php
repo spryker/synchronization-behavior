@@ -22,6 +22,6 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
      */
     public function isSynchronizationEnabled(): bool
     {
-        return false;
+        return true;
     }
 }
