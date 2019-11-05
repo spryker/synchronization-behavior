@@ -8,6 +8,7 @@
 namespace Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior;
 
 use Propel\Generator\Model\Behavior;
+use Propel\Generator\Model\Table;
 use Propel\Generator\Model\Unique;
 use Propel\Generator\Util\PhpParser;
 use Spryker\Zed\Kernel\BundleConfigResolverAwareTrait;
@@ -196,7 +197,7 @@ class SynchronizationBehavior extends Behavior
             }
         }
 
-        if (!$table->hasColumn('alias_keys')) {
+        if ($this->shouldAddAliasKeysColumn($table)) {
             $table->addColumn([
                 'name' => 'alias_keys',
                 'type' => 'VARCHAR',
@@ -1056,5 +1057,15 @@ public function isSynchronizationEnabled(): bool
         }
 
         return $this->getConfig()->isSynchronizationEnabled();
+    }
+
+    /**
+     * @param \Propel\Generator\Model\Table $table
+     *
+     * @return bool
+     */
+    protected function shouldAddAliasKeysColumn(Table $table): bool
+    {
+        return $this->getConfig()->isAliasKeysColumnEnabled() && !$table->hasColumn('alias_keys');
     }
 }

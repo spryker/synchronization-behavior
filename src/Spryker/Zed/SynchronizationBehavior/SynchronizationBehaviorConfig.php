@@ -24,4 +24,17 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
     {
         return true;
     }
+
+    /**
+     * Specification:
+     * - If true, then the alias_keys column will be added to all the synchronization tables.
+     *
+     * @api
+     *
+     * @return bool
+     */
+    public function isAliasKeysColumnEnabled(): bool
+    {
+        return false;
+    }
 }
