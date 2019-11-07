@@ -29,7 +29,9 @@
   "prefer-stable": true,
   "scripts": {
     "cs-check": "phpcs --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -p --ignore=/templates/ src/ tests/",
-    "cs-fix": "phpcbf --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -p --ignore=/templates/ src/ tests/"
+    "cs-fix": "phpcbf --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -p --ignore=/templates/ src/ tests/",
+    "phpstan": "phpstan analyse -c tests/phpstan.neon -l 5 src/",
+    "phpstan-setup": "cp composer.json composer.backup && composer require --dev phpstan/phpstan-shim:^0.11 && mv composer.backup composer.json"
   },
   "extra": {
     "name": "synchronization",
