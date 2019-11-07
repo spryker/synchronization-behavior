@@ -23,7 +23,7 @@ matrix:
     - php: 7.3
 
 before_install:
-  - phpenv config-rm xdebug.ini
+  - if [[ ${TRAVIS_PHP_VERSION} != "7.4snapshot" ]]; then phpenv config-rm xdebug.ini ; fi
 
 before_script:
   - COMPOSER_MEMORY_LIMIT=-1 composer install --prefer-dist --no-interaction
