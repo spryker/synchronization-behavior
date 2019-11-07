@@ -1,11 +1,3 @@
 parameters:
     ignoreErrors:
-        - '#Return typehint of method .+ has invalid type .+Transfer#'
-        - '#Parameter .+ of method .+ has invalid typehint type .+Transfer#'
-        - '#Call to method .+ on an unknown class .+Transfer#'
-        - '#Instantiated class .+Transfer not found#'
-        - '#Call to (static method|method) .+ on an unknown class .+\\Spy.+#'
-        - '#Return typehint of method .+ has invalid type .+Query#'
-        - '#Parameter .+ of method .+ has invalid typehint type .+\\Spy.+#'
-        - '#Class .+Query not found#'
 
