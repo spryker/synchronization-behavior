@@ -1015,8 +1015,13 @@ protected function setGeneratedAliasKeys()
     \$aliasKeys = json_decode(\$this->getAliasKeys()) ?? [];
     foreach (\$mappings as \$mapping) {
         \$source = \$mapping['source'];
-        if (isset(\$data[\$source])) {
-            \$aliasKeys[] = \$this->generateMappingKey(\$source, \$data[\$source]);
+        \$destination = \$mapping['destination'];
+        if (isset(\$data[\$source]) && isset(\$data[\$destination])) {
+            \$key = \$this->generateMappingKey(\$source, \$data[\$source]);
+            \$aliasKeys[\$key] = [
+                'id' => \$data[\$destination],
+                '_timestamp' => microtime(true),
+            ];
         }
     }
     \$aliasKeys = json_encode(array_unique(\$aliasKeys));

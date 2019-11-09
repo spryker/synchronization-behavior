@@ -27,7 +27,8 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
 
     /**
      * Specification:
-     * - If true, then the alias_keys column will be added to all the synchronization tables.
+     * - If true, then the alias_keys column is added to all the storage tables, for which mappings are defined.
+     * - The new column is populated with JSON object, containing mapping keys and their respective mapping data for each resource.
      *
      * @api
      *
