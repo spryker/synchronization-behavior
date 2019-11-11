@@ -34,7 +34,7 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
      *
      * @return bool
      */
-    public function isAliasKeysColumnEnabled(): bool
+    public function isAliasKeysEnabled(): bool
     {
         return false;
     }

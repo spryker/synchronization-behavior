@@ -994,7 +994,7 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
      */
     protected function addGenerateAliasKeysMethod(): string
     {
-        if (!$this->hasMappings()) {
+        if (!$this->shouldSetAliasKeys()) {
             return '/**
  * @return void
  */
@@ -1071,6 +1071,14 @@ public function isSynchronizationEnabled(): bool
      */
     protected function shouldAddAliasKeysColumn(Table $table): bool
     {
-        return $this->getConfig()->isAliasKeysColumnEnabled() && !$table->hasColumn('alias_keys');
+        return $this->getConfig()->isAliasKeysEnabled() && !$table->hasColumn('alias_keys');
+    }
+
+    /**
+     * @return bool
+     */
+    protected function shouldSetAliasKeys(): bool
+    {
+        return $this->getConfig()->isAliasKeysEnabled() && $this->hasMappings();
     }
 }
