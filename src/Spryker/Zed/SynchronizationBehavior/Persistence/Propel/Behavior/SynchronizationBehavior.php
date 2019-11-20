@@ -1012,7 +1012,7 @@ protected function setGeneratedAliasKeys()
 {
     \$mappings = $mappings;
     \$data = \$this->getData();
-    \$aliasKeys = json_decode(\$this->getAliasKeys()) ?? [];
+    \$aliasKeys = json_decode(\$this->getAliasKeys(), true) ?? [];
     foreach (\$mappings as \$mapping) {
         \$source = \$mapping['source'];
         \$destination = \$mapping['destination'];
