@@ -1,8 +1,4 @@
 parameters:
     ignoreErrors:
-        -
-            message: '#Call to an undefined method .+AbstractBundleConfig::isSynchronizationEnabled\(\).#'
-            path: 'vendor/spryker/synchronization-behavior/src/Spryker/Zed/SynchronizationBehavior/Persistence/Propel/Behavior/SynchronizationBehavior.php'
-        -
-            message: '#Call to an undefined method .+AbstractBundleConfig::isAliasKeysEnabled\(\).#'
-            path: 'vendor/spryker/synchronization-behavior/src/Spryker/Zed/SynchronizationBehavior/Persistence/Propel/Behavior/SynchronizationBehavior.php'
+        - '#Call to an undefined method .+AbstractBundleConfig::isSynchronizationEnabled\(\).#'
+        - '#Call to an undefined method .+AbstractBundleConfig::isAliasKeysEnabled\(\).#'
