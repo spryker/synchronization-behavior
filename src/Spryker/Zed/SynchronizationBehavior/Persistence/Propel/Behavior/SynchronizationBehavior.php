@@ -8,19 +8,29 @@
 namespace Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior;
 
 use Propel\Generator\Model\Behavior;
+use Propel\Generator\Model\Table;
 use Propel\Generator\Model\Unique;
 use Propel\Generator\Util\PhpParser;
+use Spryker\Zed\Kernel\BundleConfigResolverAwareTrait;
 use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException;
 use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\MissingAttributeException;
 use Zend\Filter\Word\UnderscoreToCamelCase;
 
+/**
+ * @method \Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig getConfig()
+ */
 class SynchronizationBehavior extends Behavior
 {
+    use BundleConfigResolverAwareTrait;
+
     public const ERROR_MISSING_RESOURCE_PARAMETER = '%s misses "resource" synchronization parameter.';
     public const ERROR_MISSING_MAPPING_RESOURCE_PARAMETER = '%s misses "mapping_resource" synchronization parameter.';
     public const ERROR_MISSING_MAPPINGS_PARAMETER = '%s misses "mappings" synchronization parameter.';
     public const ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS = '%s uses mutually exclusive "store" and "queue_pool" synchronization attributes.';
     public const ERROR_INVALID_MAPPINGS_PARAMETER = '%s define incorrect value of mappings parameter.';
+
+    protected const SYNCHRONIZATION_ENABLED = 'true';
+    protected const SYNCHRONIZATION_DISABLED = 'false';
 
     /**
      * @var array
@@ -38,7 +48,8 @@ class SynchronizationBehavior extends Behavior
     {
         return "
 \$this->setGeneratedKey();
-\$this->setGeneratedKeyForMappingResource();        
+\$this->setGeneratedKeyForMappingResource();      
+\$this->setGeneratedAliasKeys();      
         ";
     }
 
@@ -113,6 +124,7 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addGenerateKeyMethod();
         $script .= $this->addGenerateMappingResourceKeyMethod();
         $script .= $this->addGenerateMappingsKeyMethod();
+        $script .= $this->addGenerateAliasKeysMethod();
         $script .= $this->addSendToQueueMethod();
         $script .= $this->addSyncPublishedMessageMethod();
         $script .= $this->addSyncUnpublishedMessageMethod();
@@ -120,6 +132,7 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addSyncUnpublishedMessageForMappingResourceMethod();
         $script .= $this->addSyncPublishedMessageForMappingsMethod();
         $script .= $this->addSyncUnpublishedMessageForMappingsMethod();
+        $script .= $this->addIsSynchronizationEnabledMethod();
 
         return $script;
     }
@@ -184,6 +197,17 @@ class SynchronizationBehavior extends Behavior
             }
         }
 
+        if ($this->shouldAddAliasKeysColumn($table)) {
+            $table->addColumn([
+                'name' => 'alias_keys',
+                'type' => 'VARCHAR',
+            ]);
+            $uniqueIndex = new Unique();
+            $uniqueIndex->setName($table->getName() . '-unique-alias-keys');
+            $uniqueIndex->addColumn($table->getColumn('alias_keys'));
+            $table->addUnique($uniqueIndex);
+        }
+
         if (!$table->hasColumn('key')) {
             $table->addColumn([
                 'name' => 'key',
@@ -209,6 +233,8 @@ class SynchronizationBehavior extends Behavior
 private \$_dataTemp;
 
 /**
+ * @deprecated Use `\Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig::isSynchronizationEnabled()` instead.
+ *
  * @var bool
  */
 private \$_isSendingToQueue = true;
@@ -227,6 +253,8 @@ private \$_locator;
     {
         return "
 /**
+ * @deprecated Use `\Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig::isSynchronizationEnabled()` instead.
+ *
  * @return bool
  */
 public function isSendingToQueue()
@@ -235,6 +263,8 @@ public function isSendingToQueue()
 }
 
 /**
+ * @deprecated Use `\Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig::isSynchronizationEnabled()` instead.
+ *
  * @param bool \$_isSendingToQueue
  *
  * @return \$this
@@ -524,6 +554,11 @@ protected function sendToQueue(array \$message)
  */
 public function syncPublishedMessage()
 {
+    if (!\$this->isSynchronizationEnabled()) {
+        return;
+    }
+    
+    // Kept for BC reasons, will be removed in next major.
     if (!\$this->_isSendingToQueue) {
         return;
     }
@@ -573,6 +608,11 @@ public function syncPublishedMessage()
  */
 public function syncUnpublishedMessage()
 {
+    if (!\$this->isSynchronizationEnabled()) {
+        return;
+    }
+    
+    // Kept for BC reasons, will be removed in next major.
     if (!\$this->_isSendingToQueue) {
         return;
     }
@@ -641,6 +681,10 @@ public function syncUnpublishedMessage()
  */
 public function syncPublishedMessageForMappingResource()
 {
+    if (!\$this->isSynchronizationEnabled()) {
+        return;
+    }
+    
     $sendMappingStatement;
 }        
         ";
@@ -689,6 +733,10 @@ public function syncPublishedMessageForMappingResource()
  */
 public function syncUnpublishedMessageForMappingResource()
 {
+    if (!\$this->isSynchronizationEnabled()) {
+        return;
+    }
+
     $sendMappingStatement;
 }        
         ";
@@ -732,6 +780,10 @@ public function syncUnpublishedMessageForMappingResource()
  */
 public function syncPublishedMessageForMappings()
 {
+    if (!\$this->isSynchronizationEnabled()) {
+        return;
+    }
+    
     $sendMappingsStatement
 }        
         ";
@@ -775,6 +827,10 @@ public function syncPublishedMessageForMappings()
  */
 public function syncUnpublishedMessageForMappings()
 {
+    if (!\$this->isSynchronizationEnabled()) {
+        return;
+    }
+    
     $sendMappingsStatement
 }        
         ";
@@ -831,6 +887,16 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
     protected function hasLocale(): bool
     {
         return isset($this->getParameters()['locale']);
+    }
+
+    /**
+     * @return bool
+     */
+    protected function hasMappings(): bool
+    {
+        $parameters = $this->getParameters();
+
+        return isset($parameters['mappings']);
     }
 
     /**
@@ -921,5 +987,98 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
         }
 
         return $mappings;
+    }
+
+    /**
+     * @return string
+     */
+    protected function addGenerateAliasKeysMethod(): string
+    {
+        if (!$this->shouldSetAliasKeys()) {
+            return '/**
+ * @return void
+ */
+protected function setGeneratedAliasKeys()
+{
+}';
+        }
+        $mappings = $this->getMappings();
+
+        return "
+/**
+ * @return void
+ */
+protected function setGeneratedAliasKeys()
+{
+    \$mappings = $mappings;
+    \$data = \$this->getData();
+    \$aliasKeys = json_decode(\$this->getAliasKeys(), true) ?? [];
+    foreach (\$mappings as \$mapping) {
+        \$source = \$mapping['source'];
+        \$destination = \$mapping['destination'];
+        if (isset(\$data[\$source]) && isset(\$data[\$destination])) {
+            \$key = \$this->generateMappingKey(\$source, \$data[\$source]);
+            \$aliasKeys[\$key] = [
+                'id' => \$data[\$destination],
+                '_timestamp' => microtime(true),
+            ];
+        }
+    }
+    \$aliasKeys = json_encode(array_unique(\$aliasKeys));
+    \$this->setAliasKeys(\$aliasKeys);
+}        
+        ";
+    }
+
+    /**
+     * @return string
+     */
+    protected function addIsSynchronizationEnabledMethod(): string
+    {
+        $isSynchronizationEnabled = $this->isSynchronizationEnabled()
+            ? static::SYNCHRONIZATION_ENABLED
+            : static::SYNCHRONIZATION_DISABLED;
+
+        return "
+/**
+ * @return bool
+ */
+public function isSynchronizationEnabled(): bool
+{
+    return $isSynchronizationEnabled;
+}        
+        ";
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isSynchronizationEnabled(): bool
+    {
+        $parameters = $this->getParameters();
+
+        if (isset($parameters['synchronization_enabled']) && isset($parameters['synchronization_enabled']['value'])) {
+            return $parameters['synchronization_enabled']['value'] === static::SYNCHRONIZATION_ENABLED;
+        }
+
+        return $this->getConfig()->isSynchronizationEnabled();
+    }
+
+    /**
+     * @param \Propel\Generator\Model\Table $table
+     *
+     * @return bool
+     */
+    protected function shouldAddAliasKeysColumn(Table $table): bool
+    {
+        return $this->getConfig()->isAliasKeysEnabled() && !$table->hasColumn('alias_keys');
+    }
+
+    /**
+     * @return bool
+     */
+    protected function shouldSetAliasKeys(): bool
+    {
+        return $this->getConfig()->isAliasKeysEnabled() && $this->hasMappings();
     }
 }

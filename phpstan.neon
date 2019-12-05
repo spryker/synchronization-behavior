@@ -1,3 +1,4 @@
 parameters:
     ignoreErrors:
-
+        - '#Call to an undefined method .+AbstractBundleConfig::isSynchronizationEnabled\(\).#'
+        - '#Call to an undefined method .+AbstractBundleConfig::isAliasKeysEnabled\(\).#'
