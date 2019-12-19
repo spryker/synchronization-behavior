@@ -28,8 +28,8 @@
   "minimum-stability": "dev",
   "prefer-stable": true,
   "scripts": {
-    "cs-check": "phpcs --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -p --ignore=/templates/ src/ tests/",
-    "cs-fix": "phpcbf --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml -p --ignore=/templates/ src/ tests/",
+    "cs-check": "phpcs -p -s --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml src/ tests/",
+    "cs-fix": "phpcbf -p --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml src/ tests/",
     "phpstan": "phpstan analyse -c phpstan.neon -l 5 src/",
     "phpstan-setup": "cp composer.json composer.backup && COMPOSER_MEMORY_LIMIT=-1 composer require --dev phpstan/phpstan-shim:^0.11 && mv composer.backup composer.json"
   },
