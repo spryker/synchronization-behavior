@@ -184,7 +184,10 @@ class SynchronizationBehavior extends Behavior
             }
         }
 
-        if (isset($parameters['mapping_resource'])) {
+        /**
+         * @deprecated Will be removed without replacement.
+         */
+        if ($this->shouldUseMappingResources()) {
             if (!$table->hasColumn('mapping_resource_key')) {
                 $table->addColumn([
                     'name' => 'mapping_resource_key',
@@ -350,6 +353,8 @@ protected function setGeneratedKey()
     }
 
     /**
+     * @deprecated Will be removed without replacement.
+     *
      * @throws \Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\MissingAttributeException
      *
      * @return string
@@ -357,7 +362,7 @@ protected function setGeneratedKey()
     protected function addGenerateMappingResourceKeyMethod()
     {
         $parameters = $this->getParameters();
-        if (!isset($parameters['mapping_resource'])) {
+        if (!$this->shouldUseMappingResources()) {
             return '/**
  * @return void
  */
@@ -640,16 +645,17 @@ public function syncUnpublishedMessage()
     }
 
     /**
+     * @deprecated Will be removed without replacement.
+     *
      * @return string
      */
     protected function addSyncPublishedMessageForMappingResourceMethod()
     {
         $params = $this->getParams();
         $resource = $this->getParameter('resource')['value'];
-        $behaviorParameters = $this->getParameters();
 
         $sendMappingStatement = '';
-        if (isset($behaviorParameters['mapping_resource'])) {
+        if ($this->shouldUseMappingResources()) {
             $sendMappingStatement = "
     if (!empty(\$this->getMappingResourceKey())) {
         /* The value for `\$params` has been loaded from schema file */
@@ -691,16 +697,17 @@ public function syncPublishedMessageForMappingResource()
     }
 
     /**
+     * @deprecated Will be removed without replacement.
+     *
      * @return string
      */
     protected function addSyncUnpublishedMessageForMappingResourceMethod()
     {
         $params = $this->getParams();
-        $behaviorParameters = $this->getParameters();
         $resource = $this->getParameter('resource')['value'];
 
         $sendMappingStatement = '';
-        if (isset($behaviorParameters['mapping_resource'])) {
+        if ($this->shouldUseMappingResources()) {
             $sendMappingStatement = "
     if (!empty(\$this->getMappingResourceKey())) {
         /* The value for `\$params` has been loaded from schema file */
@@ -1080,5 +1087,17 @@ public function isSynchronizationEnabled(): bool
     protected function shouldSetAliasKeys(): bool
     {
         return $this->getConfig()->isAliasKeysEnabled() && $this->hasMappings();
+    }
+
+    /**
+     * @deprecated For BC reasons only. Will be removed along with the concept of mapping resources.
+     *
+     * @return bool
+     */
+    protected function shouldUseMappingResources(): bool
+    {
+        $parameters = $this->getParameters();
+
+        return isset($parameters['mapping_resource']) && !isset($parameters['mappings']);
     }
 }
