@@ -183,7 +183,7 @@ class SynchronizationBehavior extends Behavior
                 ]);
             }
         }
-        
+
         if ($this->shouldUseMappingResources()) {
             if (!$table->hasColumn('mapping_resource_key')) {
                 $table->addColumn([
