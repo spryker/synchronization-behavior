@@ -8,6 +8,7 @@
 namespace Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior;
 
 use Propel\Generator\Model\Behavior;
+use Propel\Generator\Model\Column;
 use Propel\Generator\Model\Table;
 use Propel\Generator\Model\Unique;
 use Propel\Generator\Util\PhpParser;
@@ -48,8 +49,8 @@ class SynchronizationBehavior extends Behavior
     {
         return "
 \$this->setGeneratedKey();
-\$this->setGeneratedKeyForMappingResource();      
-\$this->setGeneratedAliasKeys();      
+\$this->setGeneratedKeyForMappingResource();
+\$this->setGeneratedAliasKeys();
         ";
     }
 
@@ -60,8 +61,8 @@ class SynchronizationBehavior extends Behavior
     {
         return "
 \$this->syncPublishedMessage();
-\$this->syncPublishedMessageForMappingResource();   
-\$this->syncPublishedMessageForMappings();   
+\$this->syncPublishedMessageForMappingResource();
+\$this->syncPublishedMessageForMappings();
         ";
     }
 
@@ -71,9 +72,9 @@ class SynchronizationBehavior extends Behavior
     public function postDelete()
     {
         return "
-\$this->syncUnpublishedMessage();        
-\$this->syncUnpublishedMessageForMappingResource();        
-\$this->syncUnpublishedMessageForMappings();        
+\$this->syncUnpublishedMessage();
+\$this->syncUnpublishedMessageForMappingResource();
+\$this->syncUnpublishedMessageForMappings();
         ";
     }
 
@@ -192,7 +193,7 @@ class SynchronizationBehavior extends Behavior
                 ]);
                 $uniqueIndex = new Unique();
                 $uniqueIndex->setName($table->getName() . '-unique-mapping-resource-key');
-                $uniqueIndex->addColumn($table->getColumn('mapping_resource_key'));
+                $uniqueIndex->addColumn(new Column('mapping_resource_key'));
                 $table->addUnique($uniqueIndex);
             }
         }
@@ -204,7 +205,7 @@ class SynchronizationBehavior extends Behavior
             ]);
             $uniqueIndex = new Unique();
             $uniqueIndex->setName($table->getName() . '-unique-alias-keys');
-            $uniqueIndex->addColumn($table->getColumn('alias_keys'));
+            $uniqueIndex->addColumn(new Column('alias_keys'));
             $table->addUnique($uniqueIndex);
         }
 
@@ -216,7 +217,7 @@ class SynchronizationBehavior extends Behavior
 
             $uniqueIndex = new Unique();
             $uniqueIndex->setName($table->getName() . '-unique-key');
-            $uniqueIndex->addColumn($table->getColumn('key'));
+            $uniqueIndex->addColumn(new Column('key'));
             $table->addUnique($uniqueIndex);
         }
     }
@@ -258,7 +259,7 @@ private \$_locator;
  * @return bool
  */
 public function isSendingToQueue()
-{    
+{
     return \$this->_isSendingToQueue;
 }
 
@@ -272,9 +273,9 @@ public function isSendingToQueue()
 public function setIsSendingToQueue(\$_isSendingToQueue)
 {
     \$this->_isSendingToQueue = \$_isSendingToQueue;
-    
+
     return \$this;
-}        
+}
         ";
     }
 
@@ -294,12 +295,12 @@ protected function getStorageKeyBuilder(\$resource)
     if (\$this->_locator === null) {
         \$this->_locator = \\Spryker\\Zed\\Kernel\\Locator::getInstance();
     }
-    
+
     /** @var \\Spryker\\Service\\Synchronization\\SynchronizationServiceInterface \$synchronizationService */
     \$synchronizationService = \$this->_locator->synchronization()->service();
 
     return \$synchronizationService->getStorageKeyBuilder(\$resource);
-}        
+}
         ";
     }
 
@@ -340,12 +341,12 @@ protected function setGeneratedKey()
     \$syncTransferData = new \\Generated\\Shared\\Transfer\\SynchronizationDataTransfer();
     $referenceSetStatement
     $storeSetStatement
-    $localeSetStatement    
+    $localeSetStatement
     \$keyBuilder = \$this->getStorageKeyBuilder('$resource');
 
     \$key = \$keyBuilder->generateKey(\$syncTransferData);
     \$this->setKey(\$key);
-}        
+}
         ";
     }
 
@@ -389,7 +390,7 @@ protected function setGeneratedKeyForMappingResource()
             $filter = new UnderscoreToCamelCase();
             $keySuffix = sprintf('get%s()', $filter->filter($parameters['mapping_resource_key_suffix_column']['value']));
             $checkSuffixStatement = "if (empty(\$this->$keySuffix)) {
-         return;       
+         return;
     }
             ";
         }
@@ -408,12 +409,12 @@ protected function setGeneratedKeyForMappingResource()
     \$syncTransferData = new \\Generated\\Shared\\Transfer\\SynchronizationDataTransfer();
     $referenceSetStatement
     $storeSetStatement
-    $localeSetStatement    
+    $localeSetStatement
     \$keyBuilder = \$this->getStorageKeyBuilder('$resource');
 
     \$key = \$keyBuilder->generateKey(\$syncTransferData);
     \$this->setMappingResourceKey(\$key);
-}        
+}
         ";
     }
 
@@ -448,20 +449,20 @@ protected function setGeneratedKeyForMappingResource()
     {
         if (is_array(\$v)) {
             \$this->_dataTemp = \$v;
-            \$v = json_encode(\$v);        
+            \$v = json_encode(\$v);
         }
-        
+
         if (\$v !== null) {
             \$v = (string) \$v;
         }
-    
+
         if (\$this->data !== \$v) {
             \$this->data = \$v;
             \$this->modifiedColumns[%sTableMap::COL_DATA] = true;
         }
-    
+
         return \$this;
-    }        
+    }
         ";
 
         return sprintf($newCode, $tableName);
@@ -528,15 +529,15 @@ protected function sendToQueue(array \$message)
     if (\$this->_locator === null) {
         \$this->_locator = \\Spryker\\Zed\\Kernel\\Locator::getInstance();
     }
-    
+
     \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
     \$queueSendTransfer->setBody(json_encode(\$message));
     $setLocale
     $setMessageQueueRouting
-    
+
     \$queueClient = \$this->_locator->queue()->client();
     \$queueClient->sendMessage('$queueName', \$queueSendTransfer);
-}        
+}
         ";
     }
 
@@ -551,7 +552,7 @@ protected function sendToQueue(array \$message)
         return "
 /**
  * @throws PropelException
- * 
+ *
  * @return void
  */
 public function syncPublishedMessage()
@@ -559,7 +560,7 @@ public function syncPublishedMessage()
     if (!\$this->isSynchronizationEnabled()) {
         return;
     }
-    
+
     // Kept for BC reasons, will be removed in next major.
     if (!\$this->_isSendingToQueue) {
         return;
@@ -574,14 +575,14 @@ public function syncPublishedMessage()
     } else {
         \$data = \$this->getData();
     }
-    
+
     /* The value for `\$params` has been loaded from schema file */
     \$params = '$params';
     \$decodedParams = [];
     if (!empty(\$params)) {
         \$decodedParams = json_decode(\$params, true);
     }
-    
+
     \$data['_timestamp'] = microtime(true);
     \$message = [
         'write' => [
@@ -592,7 +593,7 @@ public function syncPublishedMessage()
         ]
     ];
     \$this->sendToQueue(\$message);
-}        
+}
         ";
     }
 
@@ -613,19 +614,19 @@ public function syncUnpublishedMessage()
     if (!\$this->isSynchronizationEnabled()) {
         return;
     }
-    
+
     // Kept for BC reasons, will be removed in next major.
     if (!\$this->_isSendingToQueue) {
         return;
     }
-    
+
     /* The value for `\$params` has been loaded from schema file */
     \$params = '$params';
     \$decodedParams = [];
     if (!empty(\$params)) {
         \$decodedParams = json_decode(\$params, true);
     }
-    
+
     \$data['_timestamp'] = microtime(true);
     \$message = [
         'delete' => [
@@ -636,8 +637,8 @@ public function syncUnpublishedMessage()
         ]
     ];
 
-    \$this->sendToQueue(\$message); 
-}        
+    \$this->sendToQueue(\$message);
+}
         ";
     }
 
@@ -661,7 +662,7 @@ public function syncUnpublishedMessage()
         if (!empty(\$params)) {
             \$decodedParams = json_decode(\$params, true);
         }
-    
+
         \$message = [
             'write' => [
                 'key' => \$this->getMappingResourceKey(),
@@ -687,9 +688,9 @@ public function syncPublishedMessageForMappingResource()
     if (!\$this->isSynchronizationEnabled()) {
         return;
     }
-    
+
     $sendMappingStatement;
-}        
+}
         ";
     }
 
@@ -713,7 +714,7 @@ public function syncPublishedMessageForMappingResource()
         if (!empty(\$params)) {
             \$decodedParams = json_decode(\$params, true);
         }
-    
+
         \$message = [
             'delete' => [
                 'key' => \$this->getMappingResourceKey(),
@@ -725,7 +726,7 @@ public function syncPublishedMessageForMappingResource()
                 'params' => \$decodedParams,
             ]
         ];
-    
+
         \$this->sendToQueue(\$message);
     }
             ";
@@ -742,7 +743,7 @@ public function syncUnpublishedMessageForMappingResource()
     }
 
     $sendMappingStatement;
-}        
+}
         ";
     }
 
@@ -758,7 +759,7 @@ public function syncUnpublishedMessageForMappingResource()
             $mappings = $this->getMappings();
             $sendMappingsStatement = "\$mappings = $mappings;
     foreach (\$mappings as \$mapping) {
-        \$data = \$this->getData(); 
+        \$data = \$this->getData();
         \$source = \$mapping['source'];
         \$destination = \$mapping['destination'];
         if (isset(\$data[\$source]) && isset(\$data[\$destination])) {
@@ -787,9 +788,9 @@ public function syncPublishedMessageForMappings()
     if (!\$this->isSynchronizationEnabled()) {
         return;
     }
-    
+
     $sendMappingsStatement
-}        
+}
         ";
     }
 
@@ -805,7 +806,7 @@ public function syncPublishedMessageForMappings()
             $mappings = $this->getMappings();
             $sendMappingsStatement = "\$mappings = $mappings;
     foreach (\$mappings as \$mapping) {
-        \$data = \$this->getData(); 
+        \$data = \$this->getData();
         \$source = \$mapping['source'];
         \$destination = \$mapping['destination'];
         if (isset(\$data[\$source]) && isset(\$data[\$destination])) {
@@ -834,9 +835,9 @@ public function syncUnpublishedMessageForMappings()
     if (!\$this->isSynchronizationEnabled()) {
         return;
     }
-    
+
     $sendMappingsStatement
-}        
+}
         ";
     }
 
@@ -861,7 +862,7 @@ public function syncUnpublishedMessageForMappings()
 /**
  * @param string \$source
  * @param string \$sourceIdentifier
- 
+
  * @return string
  */
 protected function generateMappingKey(\$source, \$sourceIdentifier)
@@ -869,11 +870,11 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
     \$syncTransferData = new \\Generated\\Shared\\Transfer\\SynchronizationDataTransfer();
     \$syncTransferData->setReference(\$source . ':' . \$sourceIdentifier);
     $storeSetStatement
-    $localeSetStatement    
+    $localeSetStatement
     \$keyBuilder = \$this->getStorageKeyBuilder('$resource');
 
     return \$keyBuilder->generateKey(\$syncTransferData);
-}        
+}
         ";
     }
 
@@ -1030,7 +1031,7 @@ protected function setGeneratedAliasKeys()
     }
     \$aliasKeys = json_encode(array_unique(\$aliasKeys));
     \$this->setAliasKeys(\$aliasKeys);
-}        
+}
         ";
     }
 
@@ -1050,7 +1051,7 @@ protected function setGeneratedAliasKeys()
 public function isSynchronizationEnabled(): bool
 {
     return $isSynchronizationEnabled;
-}        
+}
         ";
     }
 
