@@ -507,7 +507,7 @@ protected function setGeneratedKeyForMappingResource()
 
         $setMessageQueueRouting = '';
         if ($hasStore) {
-            $setMessageQueueRouting = "\$queueSendTransfer->setStoreName(\$this->store);";
+            $setMessageQueueRouting = '$queueSendTransfer->setStoreName($this->store);';
         }
 
         if ($queuePoolName) {
@@ -942,7 +942,7 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
     protected function getStoreStatement(array $parameters): string
     {
         if (isset($parameters['store'])) {
-            return "\$syncTransferData->setStore(\$this->store);";
+            return '$syncTransferData->setStore($this->store);';
         }
 
         return '';
@@ -956,7 +956,7 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
     protected function getLocaleStatement(array $parameters): string
     {
         if (isset($parameters['locale'])) {
-            return "\$syncTransferData->setLocale(\$this->locale);";
+            return '$syncTransferData->setLocale($this->locale);';
         }
 
         return '';
