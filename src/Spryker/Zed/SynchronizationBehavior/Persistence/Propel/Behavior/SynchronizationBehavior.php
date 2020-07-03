@@ -234,7 +234,7 @@ class SynchronizationBehavior extends Behavior
 private \$_dataTemp;
 
 /**
- * @deprecated Use `\Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig::isSynchronizationEnabled()` instead.
+ * @deprecated Use {@link \Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig::isSynchronizationEnabled()} instead.
  *
  * @var bool
  */
@@ -254,7 +254,7 @@ private \$_locator;
     {
         return "
 /**
- * @deprecated Use `\Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig::isSynchronizationEnabled()` instead.
+ * @deprecated Use {@link \Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig::isSynchronizationEnabled()} instead.
  *
  * @return bool
  */
@@ -264,7 +264,7 @@ public function isSendingToQueue()
 }
 
 /**
- * @deprecated Use `\Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig::isSynchronizationEnabled()` instead.
+ * @deprecated Use {@link \Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig::isSynchronizationEnabled()} instead.
  *
  * @param bool \$_isSendingToQueue
  *
