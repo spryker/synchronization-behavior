@@ -969,7 +969,7 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
     {
         $parameters = $this->getParameters();
 
-        if (!isset($parameters['mappings'])) {
+        if (!$this->hasMappings()) {
             return '';
         }
 
@@ -977,7 +977,7 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
             throw new MissingAttributeException(sprintf(static::ERROR_MISSING_MAPPINGS_PARAMETER, $this->getTable()->getPhpName()));
         }
 
-        return $this->formatMappingsAsArrayString($parameters['mappings']['value']);
+        return $this->formatMappings($parameters['mappings']['value']);
     }
 
     /**
@@ -985,22 +985,19 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
      *
      * @return string
      */
-    protected function formatMappingsAsArrayString(string $mappingsString): string
+    protected function formatMappings(string $mappingsString): string
     {
         $formattedMappings = [];
-        $formattedMappingsString = '';
 
         foreach (explode($this->getConfig()->getMappingsDelimiter(), $mappingsString) as $mapping) {
-            $formattedMappings[] = $this->formatSingleMappingAsArrayString($mapping);
+            $formattedMappings[] = $this->formatSingleMapping($mapping);
         }
 
-        if ($formattedMappings) {
-            $formattedMappingsString = implode(',', $formattedMappings);
-            $formattedMappingsString = <<<EOT
+        $formattedMappingsString = implode(',', $formattedMappings);
+        $formattedMappingsString = <<<EOT
 [$formattedMappingsString,
     ]
 EOT;
-        }
 
         return $formattedMappingsString;
     }
@@ -1012,7 +1009,7 @@ EOT;
      *
      * @return string
      */
-    protected function formatSingleMappingAsArrayString(string $mapping): string
+    protected function formatSingleMapping(string $mapping): string
     {
         $mappingParts = explode(':', $mapping);
 
