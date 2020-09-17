@@ -11,6 +11,8 @@ use Spryker\Zed\Kernel\AbstractBundleConfig;
 
 class SynchronizationBehaviorConfig extends AbstractBundleConfig
 {
+    protected const MAPPINGS_DELIMITER = ';';
+
     /**
      * Specification:
      * - Enables/disables synchronization for all the modules.
@@ -37,5 +39,18 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
     public function isAliasKeysEnabled(): bool
     {
         return false;
+    }
+
+    /**
+     * Specification:
+     * - Returns the delimiter used to separate multiple mappings in schema configuration.
+     *
+     * @api
+     *
+     * @return string
+     */
+    public function getMappingsDelimiter(): string
+    {
+        return static::MAPPINGS_DELIMITER;
     }
 }

@@ -899,9 +899,7 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
      */
     protected function hasMappings(): bool
     {
-        $parameters = $this->getParameters();
-
-        return isset($parameters['mappings']);
+        return isset($this->getParameters()['mappings']);
     }
 
     /**
@@ -964,34 +962,68 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
 
     /**
      * @throws \Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\MissingAttributeException
-     * @throws \Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException
      *
      * @return string
      */
     protected function getMappings(): string
     {
         $parameters = $this->getParameters();
-        $mappings = [];
-        if (isset($parameters['mappings'])) {
-            if (!isset($parameters['mappings']['value'])) {
-                throw new MissingAttributeException(sprintf(static::ERROR_MISSING_MAPPINGS_PARAMETER, $this->getTable()->getPhpName()));
-            }
-            $mappingsParts = explode(':', $parameters['mappings']['value']);
-            if (count($mappingsParts) !== 2) {
-                throw new InvalidConfigurationException(
-                    sprintf(static::ERROR_INVALID_MAPPINGS_PARAMETER, $this->getTable()->getPhpName())
-                );
-            }
 
-            $mappings = "[
-        [
-            'source' => '{$mappingsParts[0]}',
-            'destination' => '{$mappingsParts[1]}',
-        ],
-    ]";
+        if (!$this->hasMappings()) {
+            return '';
         }
 
-        return $mappings;
+        if (!isset($parameters['mappings']['value'])) {
+            throw new MissingAttributeException(sprintf(static::ERROR_MISSING_MAPPINGS_PARAMETER, $this->getTable()->getPhpName()));
+        }
+
+        return $this->formatMappings($parameters['mappings']['value']);
+    }
+
+    /**
+     * @param string $mappingsString
+     *
+     * @return string
+     */
+    protected function formatMappings(string $mappingsString): string
+    {
+        $formattedMappings = [];
+
+        foreach (explode($this->getConfig()->getMappingsDelimiter(), $mappingsString) as $mapping) {
+            $formattedMappings[] = $this->formatSingleMapping($mapping);
+        }
+
+        $formattedMappingsString = implode(',', $formattedMappings);
+        $formattedMappingsString = <<<EOT
+[$formattedMappingsString,
+    ]
+EOT;
+
+        return $formattedMappingsString;
+    }
+
+    /**
+     * @param string $mapping
+     *
+     * @throws \Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException
+     *
+     * @return string
+     */
+    protected function formatSingleMapping(string $mapping): string
+    {
+        $mappingParts = explode(':', $mapping);
+
+        if (count($mappingParts) !== 2) {
+            throw new InvalidConfigurationException(
+                sprintf(static::ERROR_INVALID_MAPPINGS_PARAMETER, $this->getTable()->getPhpName())
+            );
+        }
+
+        return "
+        [
+            'source' => '{$mappingParts[0]}',
+            'destination' => '{$mappingParts[1]}',
+        ]";
     }
 
     /**
@@ -1029,7 +1061,7 @@ protected function setGeneratedAliasKeys()
             ];
         }
     }
-    \$aliasKeys = json_encode(array_unique(\$aliasKeys));
+    \$aliasKeys = json_encode(\$aliasKeys);
     \$this->setAliasKeys(\$aliasKeys);
 }
         ";
