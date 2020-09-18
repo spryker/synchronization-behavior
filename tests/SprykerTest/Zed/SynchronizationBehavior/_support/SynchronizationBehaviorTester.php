@@ -28,8 +28,4 @@ use Codeception\Actor;
 class SynchronizationBehaviorTester extends Actor
 {
     use _generated\SynchronizationBehaviorTesterActions;
-
-   /**
-    * Define custom actions here
-    */
 }

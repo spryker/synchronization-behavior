@@ -967,11 +967,11 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
      */
     protected function getMappings(): string
     {
-        $parameters = $this->getParameters();
-
         if (!$this->hasMappings()) {
             return '';
         }
+
+        $parameters = $this->getParameters();
 
         if (!isset($parameters['mappings']['value'])) {
             throw new MissingAttributeException(sprintf(static::ERROR_MISSING_MAPPINGS_PARAMETER, $this->getTable()->getPhpName()));
