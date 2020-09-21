@@ -8,7 +8,6 @@
 namespace SprykerTest\Zed\SynchronizationBehavior\Persistence\Propel\Behavior;
 
 use Codeception\Test\Unit;
-use Codeception\Util\Stub;
 use Propel\Generator\Model\Table;
 use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException;
 use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\MissingAttributeException;
@@ -143,7 +142,7 @@ class SynchronizationBehaviorTest extends Unit
     protected function setUpSynchronizationBehavior(): void
     {
         $this->synchronizationBehavior = new SynchronizationBehavior();
-        $this->synchronizationBehavior->setConfig($this->createSynchronizationBehaviorConfigMock());
+        $this->synchronizationBehavior->setConfig(new SynchronizationBehaviorConfig());
         $this->synchronizationBehavior->setTable(new Table());
         $this->synchronizationBehavior->setParameters([
             'queue_group' => [
@@ -152,18 +151,6 @@ class SynchronizationBehaviorTest extends Unit
             'resource' => [
                 'value' => 'resource',
             ],
-        ]);
-    }
-
-    /**
-     * @param string $mappingsDelimiter
-     *
-     * @return \Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig|\PHPUnit\Framework\MockObject\MockObject
-     */
-    protected function createSynchronizationBehaviorConfigMock($mappingsDelimiter = ';'): SynchronizationBehaviorConfig
-    {
-        return Stub::make(SynchronizationBehaviorConfig::class, [
-            'getMappingsDelimiter' => $mappingsDelimiter,
         ]);
     }
 }
