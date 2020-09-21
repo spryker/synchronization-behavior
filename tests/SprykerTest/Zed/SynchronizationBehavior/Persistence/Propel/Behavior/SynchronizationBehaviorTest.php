@@ -69,6 +69,7 @@ class SynchronizationBehaviorTest extends Unit
      */
     public function mappingsDataProvider(): array
     {
+        // Indentation is done like this on purpose. Changing it will make the corresponding test to fail.
         return [
             'single mapping' => [
                 '$mappings = [
