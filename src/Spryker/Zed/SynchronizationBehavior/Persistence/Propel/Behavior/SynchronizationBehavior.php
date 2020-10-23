@@ -15,7 +15,7 @@ use Propel\Generator\Util\PhpParser;
 use Spryker\Zed\Kernel\BundleConfigResolverAwareTrait;
 use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException;
 use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\MissingAttributeException;
-use Zend\Filter\Word\UnderscoreToCamelCase;
+use Laminas\Filter\Word\UnderscoreToCamelCase;
 
 /**
  * @method \Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig getConfig()
