@@ -7,6 +7,7 @@
 
 namespace Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior;
 
+use Laminas\Filter\Word\UnderscoreToCamelCase;
 use Propel\Generator\Model\Behavior;
 use Propel\Generator\Model\Column;
 use Propel\Generator\Model\Table;
@@ -15,7 +16,6 @@ use Propel\Generator\Util\PhpParser;
 use Spryker\Zed\Kernel\BundleConfigResolverAwareTrait;
 use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException;
 use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\MissingAttributeException;
-use Laminas\Filter\Word\UnderscoreToCamelCase;
 
 /**
  * @method \Spryker\Zed\SynchronizationBehavior\SynchronizationBehaviorConfig getConfig()
