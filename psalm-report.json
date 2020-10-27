@@ -1,0 +1,139 @@
+{
+    "error": [],
+    "warning": [
+        {
+            "severity": "info",
+            "line_from": 33,
+            "line_to": 33,
+            "type": "MoreSpecificReturnType",
+            "message": "The declared return type 'Spryker\\Zed\\SynchronizationBehavior\\SynchronizationBehaviorConfig' for Spryker\\Zed\\Kernel\\BundleConfigResolverAwareTrait::getConfig is more specific than the inferred return type 'Spryker\\Zed\\Kernel\\AbstractBundleConfig'",
+            "file_name": "vendor/spryker/spryker/Bundles/Kernel/src/Spryker/Zed/Kernel/BundleConfigResolverAwareTrait.php",
+            "snippet": "     * @return \\Spryker\\Zed\\Kernel\\AbstractBundleConfig",
+            "selected_text": "\\Spryker\\Zed\\Kernel\\AbstractBundleConfig",
+            "error_level": 3,
+            "shortcode": 70
+        },
+        {
+            "severity": "info",
+            "line_from": 45,
+            "line_to": 45,
+            "type": "MoreSpecificReturnType",
+            "message": "The declared return type 'Spryker\\Zed\\Kernel\\AbstractBundleConfig' for Spryker\\Zed\\Kernel\\BundleConfigResolverAwareTrait::resolveBundleConfig is more specific than the inferred return type 'Spryker\\Shared\\Kernel\\AbstractBundleConfig'",
+            "file_name": "vendor/spryker/spryker/Bundles/Kernel/src/Spryker/Zed/Kernel/BundleConfigResolverAwareTrait.php",
+            "snippet": "     * @return \\Spryker\\Zed\\Kernel\\AbstractBundleConfig",
+            "selected_text": "\\Spryker\\Zed\\Kernel\\AbstractBundleConfig",
+            "error_level": 3,
+            "shortcode": 70
+        },
+        {
+            "severity": "info",
+            "line_from": 328,
+            "line_to": 328,
+            "type": "PossiblyInvalidArgument",
+            "message": "Argument 2 of sprintf expects float|int|string, possibly different type array<array-key, mixed>|string provided",
+            "file_name": "vendor/spryker/synchronization-behavior/src/Spryker/Zed/SynchronizationBehavior/Persistence/Propel/Behavior/SynchronizationBehavior.php",
+            "snippet": "            $keySuffix = sprintf('get%s()', $filter->filter($parameters['key_suffix_column']['value']));",
+            "selected_text": "$filter->filter($parameters['key_suffix_column']['value'])",
+            "error_level": 3,
+            "shortcode": 92
+        },
+        {
+            "severity": "info",
+            "line_from": 391,
+            "line_to": 391,
+            "type": "PossiblyInvalidArgument",
+            "message": "Argument 2 of sprintf expects float|int|string, possibly different type array<array-key, mixed>|string provided",
+            "file_name": "vendor/spryker/synchronization-behavior/src/Spryker/Zed/SynchronizationBehavior/Persistence/Propel/Behavior/SynchronizationBehavior.php",
+            "snippet": "            $keySuffix = sprintf('get%s()', $filter->filter($parameters['mapping_resource_key_suffix_column']['value']));",
+            "selected_text": "$filter->filter($parameters['mapping_resource_key_suffix_column']['value'])",
+            "error_level": 3,
+            "shortcode": 92
+        }
+    ],
+    "deprecation": [
+        {
+            "severity": "info",
+            "line_from": 126,
+            "line_to": 126,
+            "type": "DeprecatedMethod",
+            "message": "The method Spryker\\Zed\\SynchronizationBehavior\\Persistence\\Propel\\Behavior\\SynchronizationBehavior::addGenerateMappingResourceKeyMethod has been marked as deprecated",
+            "file_name": "vendor/spryker/synchronization-behavior/src/Spryker/Zed/SynchronizationBehavior/Persistence/Propel/Behavior/SynchronizationBehavior.php",
+            "snippet": "        $script .= $this->addGenerateMappingResourceKeyMethod();",
+            "selected_text": "addGenerateMappingResourceKeyMethod",
+            "error_level": 2,
+            "shortcode": 1
+        },
+        {
+            "severity": "info",
+            "line_from": 132,
+            "line_to": 132,
+            "type": "DeprecatedMethod",
+            "message": "The method Spryker\\Zed\\SynchronizationBehavior\\Persistence\\Propel\\Behavior\\SynchronizationBehavior::addSyncPublishedMessageForMappingResourceMethod has been marked as deprecated",
+            "file_name": "vendor/spryker/synchronization-behavior/src/Spryker/Zed/SynchronizationBehavior/Persistence/Propel/Behavior/SynchronizationBehavior.php",
+            "snippet": "        $script .= $this->addSyncPublishedMessageForMappingResourceMethod();",
+            "selected_text": "addSyncPublishedMessageForMappingResourceMethod",
+            "error_level": 2,
+            "shortcode": 1
+        },
+        {
+            "severity": "info",
+            "line_from": 133,
+            "line_to": 133,
+            "type": "DeprecatedMethod",
+            "message": "The method Spryker\\Zed\\SynchronizationBehavior\\Persistence\\Propel\\Behavior\\SynchronizationBehavior::addSyncUnpublishedMessageForMappingResourceMethod has been marked as deprecated",
+            "file_name": "vendor/spryker/synchronization-behavior/src/Spryker/Zed/SynchronizationBehavior/Persistence/Propel/Behavior/SynchronizationBehavior.php",
+            "snippet": "        $script .= $this->addSyncUnpublishedMessageForMappingResourceMethod();",
+            "selected_text": "addSyncUnpublishedMessageForMappingResourceMethod",
+            "error_level": 2,
+            "shortcode": 1
+        },
+        {
+            "severity": "info",
+            "line_from": 188,
+            "line_to": 188,
+            "type": "DeprecatedMethod",
+            "message": "The method Spryker\\Zed\\SynchronizationBehavior\\Persistence\\Propel\\Behavior\\SynchronizationBehavior::shouldUseMappingResources has been marked as deprecated",
+            "file_name": "vendor/spryker/synchronization-behavior/src/Spryker/Zed/SynchronizationBehavior/Persistence/Propel/Behavior/SynchronizationBehavior.php",
+            "snippet": "        if ($this->shouldUseMappingResources()) {",
+            "selected_text": "shouldUseMappingResources",
+            "error_level": 2,
+            "shortcode": 1
+        },
+        {
+            "severity": "info",
+            "line_from": 363,
+            "line_to": 363,
+            "type": "DeprecatedMethod",
+            "message": "The method Spryker\\Zed\\SynchronizationBehavior\\Persistence\\Propel\\Behavior\\SynchronizationBehavior::shouldUseMappingResources has been marked as deprecated",
+            "file_name": "vendor/spryker/synchronization-behavior/src/Spryker/Zed/SynchronizationBehavior/Persistence/Propel/Behavior/SynchronizationBehavior.php",
+            "snippet": "        if (!$this->shouldUseMappingResources()) {",
+            "selected_text": "shouldUseMappingResources",
+            "error_level": 2,
+            "shortcode": 1
+        },
+        {
+            "severity": "info",
+            "line_from": 656,
+            "line_to": 656,
+            "type": "DeprecatedMethod",
+            "message": "The method Spryker\\Zed\\SynchronizationBehavior\\Persistence\\Propel\\Behavior\\SynchronizationBehavior::shouldUseMappingResources has been marked as deprecated",
+            "file_name": "vendor/spryker/synchronization-behavior/src/Spryker/Zed/SynchronizationBehavior/Persistence/Propel/Behavior/SynchronizationBehavior.php",
+            "snippet": "        if ($this->shouldUseMappingResources()) {",
+            "selected_text": "shouldUseMappingResources",
+            "error_level": 2,
+            "shortcode": 1
+        },
+        {
+            "severity": "info",
+            "line_from": 708,
+            "line_to": 708,
+            "type": "DeprecatedMethod",
+            "message": "The method Spryker\\Zed\\SynchronizationBehavior\\Persistence\\Propel\\Behavior\\SynchronizationBehavior::shouldUseMappingResources has been marked as deprecated",
+            "file_name": "vendor/spryker/synchronization-behavior/src/Spryker/Zed/SynchronizationBehavior/Persistence/Propel/Behavior/SynchronizationBehavior.php",
+            "snippet": "        if ($this->shouldUseMappingResources()) {",
+            "selected_text": "shouldUseMappingResources",
+            "error_level": 2,
+            "shortcode": 1
+        }
+    ]
+}
