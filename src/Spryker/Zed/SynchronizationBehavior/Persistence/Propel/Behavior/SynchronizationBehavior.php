@@ -149,7 +149,7 @@ class SynchronizationBehavior extends Behavior
         if (!$table->hasColumn('data')) {
             $table->addColumn([
                 'name' => 'data',
-                'type' => 'LONGVARCHAR',
+                'type' => $this->getConfig()->getDataColumnType(),
             ]);
         }
 

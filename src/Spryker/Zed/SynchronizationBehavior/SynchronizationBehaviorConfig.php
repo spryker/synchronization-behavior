@@ -14,6 +14,11 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
     protected const MAPPINGS_DELIMITER = ';';
 
     /**
+     * @uses \Propel\Generator\Model\PropelTypes::CLOB
+     */
+    protected const DATA_COLUMN_TYPE = 'CLOB';
+
+    /**
      * Specification:
      * - Enables/disables synchronization for all the modules.
      * - This value can be overridden on a per-module basis.
@@ -52,5 +57,18 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
     public function getMappingsDelimiter(): string
     {
         return static::MAPPINGS_DELIMITER;
+    }
+
+    /**
+     * Specification:
+     * - Returns the the Propel type for "data" column.
+     *
+     * @api
+     *
+     * @return string
+     */
+    public function getDataColumnType(): string
+    {
+        return static::DATA_COLUMN_TYPE;
     }
 }
