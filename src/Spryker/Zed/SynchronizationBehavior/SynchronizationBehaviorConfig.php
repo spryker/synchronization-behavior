@@ -61,7 +61,7 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
 
     /**
      * Specification:
-     * - Returns the the Propel type for "data" column.
+     * - Returns Propel's type for `data` column.
      *
      * @api
      *
