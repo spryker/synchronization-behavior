@@ -12,10 +12,10 @@
     "spryker/synchronization": "^0.1.0 || ^0.2.0 || ^1.0.0"
   },
   "require-dev": {
-    "codeception/module-asserts": "*",
-    "phpstan/phpstan": "*",
-    "spryker/code-sniffer": "*",
-    "spryker/testify": "*"
+    "codeception/module-asserts": "^1.0.0",
+    "phpstan/phpstan": "^0.9",
+    "spryker/code-sniffer": "^0.10.0",
+    "spryker/testify": "^3.22.1"
   },
   "autoload": {
     "psr-4": {
