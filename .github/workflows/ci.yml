@@ -1,9 +1,15 @@
 name: CI
 
-on: [
-    push,
-    pull_request
-]
+on:
+  pull_request:
+  push:
+    branches:
+      - master
+  schedule:
+    - cron: "0 0 * * *"
+      branches:
+        - 'master'
+
 
 jobs:
   validation:
@@ -13,14 +19,20 @@ jobs:
       matrix:
         php-version: [
             '7.3',
-            '7.4',
-            'nightly'
+            '7.4'
         ]
 
     steps:
       - uses: actions/checkout@v1
         with:
           fetch-depth: 1
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          extensions: mbstring, intl, pdo_${{ matrix.db-type }}
+          coverage: pcov
 
       - name: Validate composer.json and composer.lock
         run: composer validate
@@ -42,27 +54,21 @@ jobs:
           composer --version
           composer install -o
 
-      - name: Setup PHP
-        uses: shivammathur/setup-php@v2
-        with:
-          php-version: ${{ matrix.php-version }}
-          extensions: mbstring, intl, pdo_mysql
-
       - name: CodeStyle checks
         run: composer cs-check
 
       - name: PHPStan checks
         run: |
-            composer phpstan-setup
-            composer phpstan
+          composer phpstan-setup
+          composer phpstan
 
       - name: Codeception tests
         run: |
-            if [[ ${{ matrix.php-version }} == '7.4' ]]; then
-              vendor/bin/codecept run --coverage-xml
-            else
-              vendor/bin/codecept run
-            fi
+          if [[ ${{ matrix.php-version }} == '7.4' ]]; then
+            vendor/bin/codecept run --coverage-xml
+          else
+            vendor/bin/codecept run
+          fi
 
       - name: Code Coverage Report
         if: success() && matrix.php-version == '7.4'
@@ -94,14 +100,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-composer-
 
-      - name: Composer prefer-lowest
-        run: composer update --prefer-dist --no-interaction --prefer-lowest --prefer-stable -o
-
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
           extensions: mbstring, intl, pdo_mysql
+
+      - name: Composer prefer-lowest
+        run: composer update --prefer-dist --no-interaction --prefer-lowest --prefer-stable -o
 
       - name: Codeception tests
         run: vendor/bin/codecept run
