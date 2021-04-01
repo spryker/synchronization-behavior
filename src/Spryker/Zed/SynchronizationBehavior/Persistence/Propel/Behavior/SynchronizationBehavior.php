@@ -535,7 +535,7 @@ protected function sendToQueue(array \$message)
     $setLocale
     $setMessageQueueRouting
 
-    \$queueClient = \$this->_locator->queue()->client();
+    \$queueClient = \$this->_locator->queue()->facade();
     \$queueClient->sendMessage('$queueName', \$queueSendTransfer);
 }
         ";
