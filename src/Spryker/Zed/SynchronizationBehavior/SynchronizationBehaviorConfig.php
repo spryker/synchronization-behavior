@@ -43,7 +43,7 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
      */
     public function isAliasKeysEnabled(): bool
     {
-        return false;
+        return true;
     }
 
     /**
