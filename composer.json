@@ -1,54 +1,54 @@
 {
-  "name": "spryker/synchronization-behavior",
-  "type": "propel-behavior",
-  "description": "SynchronizationBehavior module",
-  "license": "proprietary",
-  "require": {
-    "php": ">=7.3",
-    "spryker/kernel": "^3.30.0",
-    "spryker/laminas": "^1.0.0",
-    "spryker/propel-orm": "^1.6.0",
-    "spryker/queue": "^1.1.2",
-    "spryker/synchronization": "^0.1.0 || ^0.2.0 || ^1.0.0"
-  },
-  "require-dev": {
-    "codeception/module-asserts": "^1.0.0",
-    "phpstan/phpstan": "^0.12.57",
-    "spryker/code-sniffer": "*",
-    "spryker/testify": "^3.35.0"
-  },
-  "autoload": {
-    "psr-4": {
-      "Spryker\\": "src/Spryker/"
-    }
-  },
-  "autoload-dev": {
-    "psr-4": {
-      "SprykerTest\\": "tests/SprykerTest/"
-    }
-  },
-  "minimum-stability": "dev",
-  "prefer-stable": true,
-  "scripts": {
-    "cs-check": "phpcs -p -s --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml src/ tests/",
-    "cs-fix": "phpcbf -p --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml src/ tests/",
-    "phpstan": "phpstan analyse -c phpstan.neon -l 5 src/",
-    "phpstan-setup": "cp composer.json composer.backup && COMPOSER_MEMORY_LIMIT=-1 composer require --dev phpstan/phpstan:^0.12 && mv composer.backup composer.json"
-  },
-  "extra": {
-    "name": "synchronization",
-    "class": "\\Spryker\\Zed\\SynchronizationBehavior\\Persistence\\Propel\\Behavior\\SynchronizationBehavior",
-    "branch-alias": {
-      "dev-master": "1.0.x-dev"
-    }
-  },
-  "config": {
-    "sort-packages": true
-  },
-  "support": {
-    "source": "https://github.com/spryker/synchronization-behavior"
-  },
-  "include-path": [
-    "src/"
-  ]
+    "name": "spryker/synchronization-behavior",
+    "type": "propel-behavior",
+    "description": "SynchronizationBehavior module",
+    "license": "proprietary",
+    "require": {
+        "php": ">=7.3",
+        "spryker/kernel": "^3.30.0",
+        "spryker/laminas": "^1.0.0",
+        "spryker/propel-orm": "^1.6.0",
+        "spryker/queue": "^1.1.2",
+        "spryker/synchronization": "^0.1.0 || ^0.2.0 || ^1.0.0"
+    },
+    "require-dev": {
+        "codeception/module-asserts": "^1.0.0",
+        "phpstan/phpstan": "^0.12.57",
+        "spryker/code-sniffer": "*",
+        "spryker/testify": "^3.35.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Spryker\\": "src/Spryker/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "SprykerTest\\": "tests/SprykerTest/"
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true,
+    "scripts": {
+        "cs-check": "phpcs -p -s --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml src/ tests/",
+        "cs-fix": "phpcbf -p --standard=vendor/spryker/code-sniffer/Spryker/ruleset.xml src/ tests/",
+        "phpstan": "phpstan analyse -c phpstan.neon -l 5 src/",
+        "phpstan-setup": "cp composer.json composer.backup && COMPOSER_MEMORY_LIMIT=-1 composer require --dev phpstan/phpstan:^0.12 && mv composer.backup composer.json"
+    },
+    "extra": {
+        "name": "synchronization",
+        "class": "\\Spryker\\Zed\\SynchronizationBehavior\\Persistence\\Propel\\Behavior\\SynchronizationBehavior",
+        "branch-alias": {
+            "dev-master": "1.0.x-dev"
+        }
+    },
+    "config": {
+        "sort-packages": true
+    },
+    "support": {
+        "source": "https://github.com/spryker/synchronization-behavior"
+    },
+    "include-path": [
+        "src/"
+    ]
 }
