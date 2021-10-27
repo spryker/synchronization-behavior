@@ -24,13 +24,34 @@ class SynchronizationBehavior extends Behavior
 {
     use BundleConfigResolverAwareTrait;
 
+    /**
+     * @var string
+     */
     public const ERROR_MISSING_RESOURCE_PARAMETER = '%s misses "resource" synchronization parameter.';
+    /**
+     * @var string
+     */
     public const ERROR_MISSING_MAPPING_RESOURCE_PARAMETER = '%s misses "mapping_resource" synchronization parameter.';
+    /**
+     * @var string
+     */
     public const ERROR_MISSING_MAPPINGS_PARAMETER = '%s misses "mappings" synchronization parameter.';
+    /**
+     * @var string
+     */
     public const ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS = '%s uses mutually exclusive "store" and "queue_pool" synchronization attributes.';
+    /**
+     * @var string
+     */
     public const ERROR_INVALID_MAPPINGS_PARAMETER = '%s define incorrect value of mappings parameter.';
 
+    /**
+     * @var string
+     */
     protected const SYNCHRONIZATION_ENABLED = 'true';
+    /**
+     * @var string
+     */
     protected const SYNCHRONIZATION_DISABLED = 'false';
 
     /**

@@ -11,10 +11,15 @@ use Spryker\Zed\Kernel\AbstractBundleConfig;
 
 class SynchronizationBehaviorConfig extends AbstractBundleConfig
 {
+    /**
+     * @var string
+     */
     protected const MAPPINGS_DELIMITER = ';';
 
     /**
      * @uses \Propel\Generator\Model\PropelTypes::CLOB
+     *
+     * @var string
      */
     protected const DATA_COLUMN_TYPE = 'CLOB';
 
