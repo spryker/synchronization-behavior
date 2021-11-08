@@ -57,6 +57,8 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
      *
      * @api
      *
+     * @phpstan-return non-empty-string
+     *
      * @return string
      */
     public function getMappingsDelimiter(): string

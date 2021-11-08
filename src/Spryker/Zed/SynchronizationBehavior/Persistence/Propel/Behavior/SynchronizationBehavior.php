@@ -1015,7 +1015,8 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
     {
         $formattedMappings = [];
 
-        foreach (explode($this->getConfig()->getMappingsDelimiter(), $mappingsString) as $mapping) {
+        $mappings = explode($this->getConfig()->getMappingsDelimiter(), $mappingsString);
+        foreach ($mappings as $mapping) {
             $formattedMappings[] = $this->formatSingleMapping($mapping);
         }
 
