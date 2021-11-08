@@ -28,18 +28,22 @@ class SynchronizationBehavior extends Behavior
      * @var string
      */
     public const ERROR_MISSING_RESOURCE_PARAMETER = '%s misses "resource" synchronization parameter.';
+
     /**
      * @var string
      */
     public const ERROR_MISSING_MAPPING_RESOURCE_PARAMETER = '%s misses "mapping_resource" synchronization parameter.';
+
     /**
      * @var string
      */
     public const ERROR_MISSING_MAPPINGS_PARAMETER = '%s misses "mappings" synchronization parameter.';
+
     /**
      * @var string
      */
     public const ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS = '%s uses mutually exclusive "store" and "queue_pool" synchronization attributes.';
+
     /**
      * @var string
      */
@@ -49,6 +53,7 @@ class SynchronizationBehavior extends Behavior
      * @var string
      */
     protected const SYNCHRONIZATION_ENABLED = 'true';
+
     /**
      * @var string
      */
@@ -520,7 +525,7 @@ protected function setGeneratedKeyForMappingResource()
 
         if ($hasStore && $queuePoolName) {
             throw new InvalidConfigurationException(
-                sprintf(static::ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS, $this->getTable()->getPhpName())
+                sprintf(static::ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS, $this->getTable()->getPhpName()),
             );
         }
 
@@ -1036,7 +1041,7 @@ EOT;
 
         if (count($mappingParts) !== 2) {
             throw new InvalidConfigurationException(
-                sprintf(static::ERROR_INVALID_MAPPINGS_PARAMETER, $this->getTable()->getPhpName())
+                sprintf(static::ERROR_INVALID_MAPPINGS_PARAMETER, $this->getTable()->getPhpName()),
             );
         }
 
