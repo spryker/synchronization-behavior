@@ -351,7 +351,9 @@ protected function getStorageKeyBuilder(\$resource)
 
         if (isset($parameters['key_suffix_column'])) {
             $filter = new UnderscoreToCamelCase();
-            $keySuffix = sprintf('get%s()', $filter->filter($parameters['key_suffix_column']['value']));
+            /** @var string $suffix */
+            $suffix = $filter->filter($parameters['key_suffix_column']['value']);
+            $keySuffix = sprintf('get%s()', $suffix);
         }
 
         if ($keySuffix !== null) {
@@ -414,7 +416,9 @@ protected function setGeneratedKeyForMappingResource()
 
         if (isset($parameters['mapping_resource_key_suffix_column'])) {
             $filter = new UnderscoreToCamelCase();
-            $keySuffix = sprintf('get%s()', $filter->filter($parameters['mapping_resource_key_suffix_column']['value']));
+            /** @var string $suffix */
+            $suffix = $filter->filter($parameters['mapping_resource_key_suffix_column']['value']);
+            $keySuffix = sprintf('get%s()', $suffix);
             $checkSuffixStatement = "if (empty(\$this->$keySuffix)) {
          return;
     }

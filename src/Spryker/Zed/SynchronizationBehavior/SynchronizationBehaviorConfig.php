@@ -12,6 +12,8 @@ use Spryker\Zed\Kernel\AbstractBundleConfig;
 class SynchronizationBehaviorConfig extends AbstractBundleConfig
 {
     /**
+     * @phpstan-var non-empty-string
+     *
      * @var string
      */
     protected const MAPPINGS_DELIMITER = ';';
