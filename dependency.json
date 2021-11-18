@@ -1,9 +1,12 @@
 {
-  "include": {
-    "spryker/synchronization": "Synchronization only used within templates.",
-    "spryker/queue": "Synchronization only used within templates."
-  },
-  "include-dev": {
-    "codeception/module-asserts": "Codeception module containing various assertions."
-  }
+    "include": {
+        "spryker/synchronization": "Synchronization only used within templates.",
+        "spryker/queue": "Synchronization only used within templates."
+    },
+    "include-dev": {
+        "codeception/module-asserts": "Codeception module containing various assertions."
+    },
+    "exclude-dev": {
+        "phpstan/phpstan": "Done via composer command."
+    }
 }

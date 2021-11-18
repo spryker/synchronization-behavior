@@ -6,8 +6,6 @@ on:
     branches:
       - master
   workflow_dispatch:
-  schedule:
-    - cron: "0 0 * * *"
 
 jobs:
   validation:
@@ -16,8 +14,8 @@ jobs:
       fail-fast: false
       matrix:
         php-version: [
-            '7.3',
-            '7.4'
+            '7.4',
+            '8.0'
         ]
 
     steps:
@@ -50,13 +48,13 @@ jobs:
           composer --version
           composer install -o
 
-      - name: CodeStyle checks
-        run: composer cs-check
-
       - name: PHPStan checks
         run: |
-          composer phpstan-setup
-          composer phpstan
+            composer stan-setup
+            composer stan
+
+      - name: CodeStyle checks
+        run: composer cs-check
 
       - name: Codeception tests
         run: |
@@ -76,7 +74,7 @@ jobs:
       fail-fast: false
       matrix:
         php-version: [
-            '7.3'
+            '7.4'
         ]
 
     steps:

@@ -11,10 +11,17 @@ use Spryker\Zed\Kernel\AbstractBundleConfig;
 
 class SynchronizationBehaviorConfig extends AbstractBundleConfig
 {
+    /**
+     * @phpstan-var non-empty-string
+     *
+     * @var string
+     */
     protected const MAPPINGS_DELIMITER = ';';
 
     /**
      * @uses \Propel\Generator\Model\PropelTypes::CLOB
+     *
+     * @var string
      */
     protected const DATA_COLUMN_TYPE = 'CLOB';
 
@@ -51,6 +58,8 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
      * - Returns the delimiter used to separate multiple mappings in schema configuration.
      *
      * @api
+     *
+     * @phpstan-return non-empty-string
      *
      * @return string
      */

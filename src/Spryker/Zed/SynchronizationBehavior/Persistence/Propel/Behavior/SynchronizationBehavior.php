@@ -24,13 +24,39 @@ class SynchronizationBehavior extends Behavior
 {
     use BundleConfigResolverAwareTrait;
 
+    /**
+     * @var string
+     */
     public const ERROR_MISSING_RESOURCE_PARAMETER = '%s misses "resource" synchronization parameter.';
+
+    /**
+     * @var string
+     */
     public const ERROR_MISSING_MAPPING_RESOURCE_PARAMETER = '%s misses "mapping_resource" synchronization parameter.';
+
+    /**
+     * @var string
+     */
     public const ERROR_MISSING_MAPPINGS_PARAMETER = '%s misses "mappings" synchronization parameter.';
+
+    /**
+     * @var string
+     */
     public const ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS = '%s uses mutually exclusive "store" and "queue_pool" synchronization attributes.';
+
+    /**
+     * @var string
+     */
     public const ERROR_INVALID_MAPPINGS_PARAMETER = '%s define incorrect value of mappings parameter.';
 
+    /**
+     * @var string
+     */
     protected const SYNCHRONIZATION_ENABLED = 'true';
+
+    /**
+     * @var string
+     */
     protected const SYNCHRONIZATION_DISABLED = 'false';
 
     /**
@@ -325,7 +351,9 @@ protected function getStorageKeyBuilder(\$resource)
 
         if (isset($parameters['key_suffix_column'])) {
             $filter = new UnderscoreToCamelCase();
-            $keySuffix = sprintf('get%s()', $filter->filter($parameters['key_suffix_column']['value']));
+            /** @var string $suffix */
+            $suffix = $filter->filter($parameters['key_suffix_column']['value']);
+            $keySuffix = sprintf('get%s()', $suffix);
         }
 
         if ($keySuffix !== null) {
@@ -388,7 +416,9 @@ protected function setGeneratedKeyForMappingResource()
 
         if (isset($parameters['mapping_resource_key_suffix_column'])) {
             $filter = new UnderscoreToCamelCase();
-            $keySuffix = sprintf('get%s()', $filter->filter($parameters['mapping_resource_key_suffix_column']['value']));
+            /** @var string $suffix */
+            $suffix = $filter->filter($parameters['mapping_resource_key_suffix_column']['value']);
+            $keySuffix = sprintf('get%s()', $suffix);
             $checkSuffixStatement = "if (empty(\$this->$keySuffix)) {
          return;
     }
@@ -499,7 +529,7 @@ protected function setGeneratedKeyForMappingResource()
 
         if ($hasStore && $queuePoolName) {
             throw new InvalidConfigurationException(
-                sprintf(static::ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS, $this->getTable()->getPhpName())
+                sprintf(static::ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS, $this->getTable()->getPhpName()),
             );
         }
 
@@ -1001,7 +1031,8 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
     {
         $formattedMappings = [];
 
-        foreach (explode($this->getConfig()->getMappingsDelimiter(), $mappingsString) as $mapping) {
+        $mappings = explode($this->getConfig()->getMappingsDelimiter(), $mappingsString);
+        foreach ($mappings as $mapping) {
             $formattedMappings[] = $this->formatSingleMapping($mapping);
         }
 
@@ -1027,7 +1058,7 @@ EOT;
 
         if (count($mappingParts) !== 2) {
             throw new InvalidConfigurationException(
-                sprintf(static::ERROR_INVALID_MAPPINGS_PARAMETER, $this->getTable()->getPhpName())
+                sprintf(static::ERROR_INVALID_MAPPINGS_PARAMETER, $this->getTable()->getPhpName()),
             );
         }
 
