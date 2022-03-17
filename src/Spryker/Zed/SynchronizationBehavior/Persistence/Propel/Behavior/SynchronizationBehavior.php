@@ -114,7 +114,7 @@ class SynchronizationBehavior extends Behavior
      *
      * @return void
      */
-    public function addParameter(array $parameter)
+    public function addParameter(array $parameter): void
     {
         $parameter = array_change_key_case($parameter, CASE_LOWER);
 
@@ -167,7 +167,7 @@ class SynchronizationBehavior extends Behavior
     /**
      * @return void
      */
-    public function modifyTable()
+    public function modifyTable(): void
     {
         $table = $this->getTable();
         $parameters = $this->getParameters();
