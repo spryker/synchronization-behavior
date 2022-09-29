@@ -8,6 +8,7 @@
 namespace Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior;
 
 use Laminas\Filter\Word\UnderscoreToCamelCase;
+use LogicException;
 use Propel\Generator\Model\Behavior;
 use Propel\Generator\Model\Column;
 use Propel\Generator\Model\Table;
@@ -169,7 +170,7 @@ class SynchronizationBehavior extends Behavior
      */
     public function modifyTable(): void
     {
-        $table = $this->getTable();
+        $table = $this->getTableOrFail();
         $parameters = $this->getParameters();
 
         if (!$table->hasColumn('data')) {
@@ -344,7 +345,7 @@ protected function getStorageKeyBuilder(\$resource)
         $referenceSetStatement = '';
 
         if (!isset($parameters['resource']['value'])) {
-            throw new MissingAttributeException(sprintf(static::ERROR_MISSING_RESOURCE_PARAMETER, $this->getTable()->getPhpName()));
+            throw new MissingAttributeException(sprintf(static::ERROR_MISSING_RESOURCE_PARAMETER, $this->getTableOrFail()->getPhpName()));
         }
 
         $resource = $parameters['resource']['value'];
@@ -402,11 +403,11 @@ protected function setGeneratedKeyForMappingResource()
         $checkSuffixStatement = '';
 
         if (!isset($parameters['resource']['value'])) {
-            throw new MissingAttributeException(sprintf(static::ERROR_MISSING_RESOURCE_PARAMETER, $this->getTable()->getPhpName()));
+            throw new MissingAttributeException(sprintf(static::ERROR_MISSING_RESOURCE_PARAMETER, $this->getTableOrFail()->getPhpName()));
         }
 
         if (!isset($parameters['mapping_resource']['value'])) {
-            throw new MissingAttributeException(sprintf(static::ERROR_MISSING_MAPPING_RESOURCE_PARAMETER, $this->getTable()->getPhpName()));
+            throw new MissingAttributeException(sprintf(static::ERROR_MISSING_MAPPING_RESOURCE_PARAMETER, $this->getTableOrFail()->getPhpName()));
         }
 
         $mappingResourceSuffix = "'{$parameters['mapping_resource']['value']}'";
@@ -466,7 +467,7 @@ protected function setGeneratedKeyForMappingResource()
      */
     protected function getNewSetDataMethod()
     {
-        $tableName = $this->getTable()->getPhpName();
+        $tableName = $this->getTableOrFail()->getPhpName();
 
         $newCode = "
     /**
@@ -529,7 +530,7 @@ protected function setGeneratedKeyForMappingResource()
 
         if ($hasStore && $queuePoolName) {
             throw new InvalidConfigurationException(
-                sprintf(static::ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS, $this->getTable()->getPhpName()),
+                sprintf(static::ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS, $this->getTableOrFail()->getPhpName()),
             );
         }
 
@@ -883,7 +884,7 @@ public function syncUnpublishedMessageForMappings()
         $localeSetStatement = $this->getLocaleStatement($parameters);
 
         if (!isset($parameters['resource']['value'])) {
-            throw new MissingAttributeException(sprintf(static::ERROR_MISSING_RESOURCE_PARAMETER, $this->getTable()->getPhpName()));
+            throw new MissingAttributeException(sprintf(static::ERROR_MISSING_RESOURCE_PARAMETER, $this->getTableOrfail()->getPhpName()));
         }
 
         $resource = $parameters['resource']['value'];
@@ -1004,7 +1005,7 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
         $parameters = $this->getParameters();
 
         if (!isset($parameters['mappings']['value'])) {
-            throw new MissingAttributeException(sprintf(static::ERROR_MISSING_MAPPINGS_PARAMETER, $this->getTable()->getPhpName()));
+            throw new MissingAttributeException(sprintf(static::ERROR_MISSING_MAPPINGS_PARAMETER, $this->getTableOrFail()->getPhpName()));
         }
 
         return $this->formatMappings($parameters['mappings']['value']);
@@ -1046,7 +1047,7 @@ EOT;
 
         if (count($mappingParts) !== 2) {
             throw new InvalidConfigurationException(
-                sprintf(static::ERROR_INVALID_MAPPINGS_PARAMETER, $this->getTable()->getPhpName()),
+                sprintf(static::ERROR_INVALID_MAPPINGS_PARAMETER, $this->getTableOrFail()->getPhpName()),
             );
         }
 
@@ -1160,5 +1161,23 @@ public function isSynchronizationEnabled(): bool
         $parameters = $this->getParameters();
 
         return isset($parameters['mapping_resource']) && !isset($parameters['mappings']);
+    }
+
+    /**
+     * Returns the table this behavior is applied to
+     *
+     * @throws \LogicException
+     *
+     * @return \Propel\Generator\Model\Table
+     */
+    public function getTableOrFail(): Table
+    {
+        $table = $this->getTable();
+
+        if ($table === null) {
+            throw new LogicException('Table is not defined.');
+        }
+
+        return $table;
     }
 }
