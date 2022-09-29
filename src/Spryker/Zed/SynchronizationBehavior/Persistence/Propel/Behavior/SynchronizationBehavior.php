@@ -61,7 +61,7 @@ class SynchronizationBehavior extends Behavior
     protected const SYNCHRONIZATION_DISABLED = 'false';
 
     /**
-     * @var array
+     * @var array<string, mixed>
      */
     protected $parameters = [
         'resource' => null,
@@ -119,13 +119,16 @@ class SynchronizationBehavior extends Behavior
     {
         $parameter = array_change_key_case($parameter, CASE_LOWER);
 
+        // @phpstan-ignore-next-line
         $this->parameters[$parameter['name']] = [];
 
         if (isset($parameter['value'])) {
+            // @phpstan-ignore-next-line
             $this->parameters[$parameter['name']]['value'] = $parameter['value'];
         }
 
         if (isset($parameter['required'])) {
+            // @phpstan-ignore-next-line
             $this->parameters[$parameter['name']]['required'] = $parameter['required'];
         }
     }
