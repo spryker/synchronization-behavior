@@ -143,7 +143,7 @@ class SynchronizationBehaviorTest extends Unit
     {
         $this->synchronizationBehavior = new SynchronizationBehavior();
         $this->synchronizationBehavior->setConfig(new SynchronizationBehaviorConfig());
-        $this->synchronizationBehavior->setTable(new Table());
+        $this->synchronizationBehavior->setTable(new Table('test'));
         $this->synchronizationBehavior->setParameters([
             'queue_group' => [
                 'value' => 'queue_group',
