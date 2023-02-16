@@ -585,7 +585,7 @@ protected function sendToQueue(array \$message)
 
         $storeParam = '\'\'';
         if ($this->hasStore()) {
-            $storeParam = '\$this->store';
+            $storeParam = "\$this->store";
         }
 
         return "
@@ -647,7 +647,7 @@ public function syncPublishedMessage()
 
         $storeParam = '\'\'';
         if ($this->hasStore()) {
-            $storeParam = '\$this->store';
+            $storeParam = "\$this->store";
         }
 
         return "
