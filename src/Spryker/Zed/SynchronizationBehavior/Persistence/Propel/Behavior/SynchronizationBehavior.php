@@ -583,6 +583,12 @@ protected function sendToQueue(array \$message)
         $params = $this->getParams();
         $resource = $this->getParameter('resource')['value'];
 
+        $storeParam = '\'\'';
+        if ($this->hasStore()) {
+            // @codingStandardsIgnoreLine
+            $storeParam = "\$this->store";
+        }
+
         return "
 /**
  * @throws PropelException
@@ -623,6 +629,7 @@ public function syncPublishedMessage()
             'key' => \$this->getKey(),
             'value' => \$data,
             'resource' => '$resource',
+            'store' => $storeParam,
             'params' => \$decodedParams,
         ]
     ];
@@ -638,6 +645,12 @@ public function syncPublishedMessage()
     {
         $params = $this->getParams();
         $resource = $this->getParameter('resource')['value'];
+
+        $storeParam = '\'\'';
+        if ($this->hasStore()) {
+            // @codingStandardsIgnoreLine
+            $storeParam = "\$this->store";
+        }
 
         return "
 /**
@@ -667,6 +680,7 @@ public function syncUnpublishedMessage()
             'key' => \$this->getKey(),
             'value' => \$data,
             'resource' => '$resource',
+            'store' => $storeParam,
             'params' => \$decodedParams,
         ]
     ];
