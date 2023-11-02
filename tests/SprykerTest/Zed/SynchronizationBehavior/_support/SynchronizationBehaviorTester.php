@@ -23,7 +23,7 @@ use Codeception\Actor;
  * @method void comment($description)
  * @method \Codeception\Lib\Friend haveFriend($name, $actorClass = NULL)
  *
- * @SuppressWarnings(PHPMD)
+ * @SuppressWarnings(\PHPMD\PHPMD)
  */
 class SynchronizationBehaviorTester extends Actor
 {
