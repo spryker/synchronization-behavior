@@ -164,7 +164,8 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addSyncPublishedMessageForMappingsMethod();
         $script .= $this->addSyncUnpublishedMessageForMappingsMethod();
         $script .= $this->addIsSynchronizationEnabledMethod();
-        $script .= $this->addInMemorySynchronizationMethod();
+        $script .= $this->addSendToMemoryMethod();
+        $script .= $this->addSynchronizationMethod();
 
         return $script;
     }
@@ -1200,18 +1201,44 @@ public function isSynchronizationEnabled(): bool
     }
 
     /**
+     * @return string
+     */
+    protected function addSynchronizationMethod(): string
+    {
+        $isInMemorySynchronizationEnabled = $this->getConfig()->isInMemorySynchronizationEnabled();
+
+        return "
+/**
+ * @param array \$message
+ *
+ * @return void
+ */
+protected function synchronize(array \$message)
+{
+    \$synchronizationFacade = \$this->_locator->synchronization()->facade();
+    if ($isInMemorySynchronizationEnabled && method_exists(\$synchronizationFacade, 'addInMemoryMessage')) {
+        \$this->sendToMemory(\$message);
+
+        return;
+    }
+
+    \$this->sendToQueue(\$message);
+}
+        ";
+    }
+
+    /**
      * @throws \Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException
      *
      * @return string
      */
-    protected function addInMemorySynchronizationMethod(): string
+    protected function addSendToMemoryMethod(): string
     {
         $queueName = $this->getParameter('queue_group')['value'];
         $resource = $this->getParameter('resource')['value'];
         $queuePoolName = $this->getQueuePoolName();
         $hasStore = $this->hasStore();
         $hasLocale = $this->hasLocale();
-        $isQueueSynchronizationEnabled = $this->getConfig()->isQueueSynchronizationEnabled();
 
         if ($hasStore && $queuePoolName) {
             throw new InvalidConfigurationException(
@@ -1243,16 +1270,8 @@ public function isSynchronizationEnabled(): bool
  *
  * @return void
  */
-protected function synchronize(array \$message)
+protected function sendToMemory(array \$message)
 {
-    \$synchronizationFacade = \$this->_locator->synchronization()->facade();
-
-    if ($isQueueSynchronizationEnabled || !method_exists(\$synchronizationFacade, 'addInMemoryMessage')) {
-        \$this->sendToQueue(\$message);
-
-        return;
-    }
-
     \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
     \$queueSendTransfer->setBody(json_encode(\$message));
     $setMessageQueueRouting
@@ -1271,6 +1290,7 @@ protected function synchronize(array \$message)
         \$this->_locator = \\Spryker\\Zed\\Kernel\\Locator::getInstance();
     }
 
+    \$synchronizationFacade = \$this->_locator->synchronization()->facade();
     \$synchronizationFacade->addInMemoryMessage(\$synchronizationMessageTransfer);
 }
         ";

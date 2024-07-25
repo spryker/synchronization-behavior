@@ -84,8 +84,8 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
     /**
      * @return bool
      */
-    public function isQueueSynchronizationEnabled(): bool
+    public function isInMemorySynchronizationEnabled(): bool
     {
-        return true;
+        return false;
     }
 }
