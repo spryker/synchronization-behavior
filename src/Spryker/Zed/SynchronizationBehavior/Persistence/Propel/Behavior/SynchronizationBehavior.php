@@ -1215,6 +1215,10 @@ public function isSynchronizationEnabled(): bool
  */
 protected function synchronize(array \$message)
 {
+    if (\$this->_locator === null) {
+        \$this->_locator = \\Spryker\\Zed\\Kernel\\Locator::getInstance();
+    }
+
     \$synchronizationFacade = \$this->_locator->synchronization()->facade();
     if ($isInMemorySynchronizationEnabled && method_exists(\$synchronizationFacade, 'addInMemoryMessage')) {
         \$this->sendToMemory(\$message);
@@ -1242,7 +1246,7 @@ protected function synchronize(array \$message)
 
         if ($hasStore && $queuePoolName) {
             throw new InvalidConfigurationException(
-                sprintf(static::ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS, $this->getTable()->getPhpName()),
+                sprintf(static::ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS, $this->getTableOrFail()->getPhpName()),
             );
         }
 
@@ -1261,7 +1265,7 @@ protected function synchronize(array \$message)
             $queueName = $resource;
         }
 
-        $tableName = $this->getTable()->getName();
+        $tableName = $this->getTableOrFail()->getName();
         $syncDestinationType = preg_match('/_storage$/', $tableName) ? 'storage' : (preg_match('/_search$/', $tableName) ? 'search' : '');
 
         return "
