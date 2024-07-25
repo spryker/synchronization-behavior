@@ -164,6 +164,7 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addSyncPublishedMessageForMappingsMethod();
         $script .= $this->addSyncUnpublishedMessageForMappingsMethod();
         $script .= $this->addIsSynchronizationEnabledMethod();
+        $script .= $this->addInMemorySynchronizationMethod();
 
         return $script;
     }
@@ -633,7 +634,7 @@ public function syncPublishedMessage()
             'params' => \$decodedParams,
         ]
     ];
-    \$this->sendToQueue(\$message);
+    \$this->synchronize(\$message);
 }
         ";
     }
@@ -685,7 +686,7 @@ public function syncUnpublishedMessage()
         ]
     ];
 
-    \$this->sendToQueue(\$message);
+    \$this->synchronize(\$message);
 }
         ";
     }
@@ -722,7 +723,7 @@ public function syncUnpublishedMessage()
                 'params' => \$decodedParams,
             ]
         ];
-        \$this->sendToQueue(\$message);
+        \$this->synchronize(\$message);
     }
             ";
         }
@@ -775,7 +776,7 @@ public function syncPublishedMessageForMappingResource()
             ]
         ];
 
-        \$this->sendToQueue(\$message);
+        \$this->synchronize(\$message);
     }
             ";
         }
@@ -821,7 +822,7 @@ public function syncUnpublishedMessageForMappingResource()
                     'resource' => '$resource',
                 ]
             ];
-            \$this->sendToQueue(\$message);
+            \$this->synchronize(\$message);
         }
     }
             ";
@@ -868,7 +869,7 @@ public function syncPublishedMessageForMappings()
                     'resource' => '$resource',
                 ]
             ];
-            \$this->sendToQueue(\$message);
+            \$this->synchronize(\$message);
         }
     }
             ";
@@ -1196,5 +1197,82 @@ public function isSynchronizationEnabled(): bool
         }
 
         return $table;
+    }
+
+    /**
+     * @throws \Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException
+     *
+     * @return string
+     */
+    protected function addInMemorySynchronizationMethod(): string
+    {
+        $queueName = $this->getParameter('queue_group')['value'];
+        $resource = $this->getParameter('resource')['value'];
+        $queuePoolName = $this->getQueuePoolName();
+        $hasStore = $this->hasStore();
+        $hasLocale = $this->hasLocale();
+        $isQueueSynchronizationEnabled = $this->getConfig()->isQueueSynchronizationEnabled();
+
+        if ($hasStore && $queuePoolName) {
+            throw new InvalidConfigurationException(
+                sprintf(static::ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS, $this->getTable()->getPhpName()),
+            );
+        }
+
+        $setLocale = $hasLocale ? '$synchronizationMessageTransfer->setLocale($this->locale);' : '';
+
+        $setMessageQueueRouting = '';
+        if ($hasStore) {
+            $setMessageQueueRouting = '$queueSendTransfer->setStoreName($this->store);';
+        }
+
+        if ($queuePoolName) {
+            $setMessageQueueRouting = "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
+        }
+
+        if ($queueName === null) {
+            $queueName = $resource;
+        }
+
+        $tableName = $this->getTable()->getName();
+        $syncDestinationType = preg_match('/_storage$/', $tableName) ? 'storage' : (preg_match('/_search$/', $tableName) ? 'search' : '');
+
+        return "
+/**
+ * @param array \$message
+ *
+ * @return void
+ */
+protected function synchronize(array \$message)
+{
+    \$synchronizationFacade = \$this->_locator->synchronization()->facade();
+
+    if ($isQueueSynchronizationEnabled || !method_exists(\$synchronizationFacade, 'addInMemoryMessage')) {
+        \$this->sendToQueue(\$message);
+
+        return;
+    }
+
+    \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
+    \$queueSendTransfer->setBody(json_encode(\$message));
+    $setMessageQueueRouting
+
+    \$operationKey = array_key_first(\$message);
+    \$synchronizationMessageTransfer = new \\Generated\\Shared\\Transfer\\SynchronizationMessageTransfer();
+    \$synchronizationMessageTransfer->setData(\$message[\$operationKey] ?? []);
+    \$synchronizationMessageTransfer->setFallbackQueueMessage(\$queueSendTransfer);
+    \$synchronizationMessageTransfer->setFallbackQueueName('$queueName');
+    \$synchronizationMessageTransfer->setSyncDestinationType('$syncDestinationType');
+    \$synchronizationMessageTransfer->setOperationType(\$operationKey);
+    \$synchronizationMessageTransfer->setResource('$resource');
+    $setLocale
+
+    if (\$this->_locator === null) {
+        \$this->_locator = \\Spryker\\Zed\\Kernel\\Locator::getInstance();
+    }
+
+    \$synchronizationFacade->addInMemoryMessage(\$synchronizationMessageTransfer);
+}
+        ";
     }
 }

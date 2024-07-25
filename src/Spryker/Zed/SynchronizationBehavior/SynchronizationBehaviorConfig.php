@@ -80,4 +80,12 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
     {
         return static::DATA_COLUMN_TYPE;
     }
+
+    /**
+     * @return bool
+     */
+    public function isQueueSynchronizationEnabled(): bool
+    {
+        return true;
+    }
 }
