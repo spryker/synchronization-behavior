@@ -1212,7 +1212,7 @@ public function isSynchronizationEnabled(): bool
             return 0;
         }
 
-        return filter_var($parameters['in_memory_sync_enabled']['value'], FILTER_VALIDATE_BOOLEAN) ? 1 : 0;;
+        return filter_var($parameters['in_memory_sync_enabled']['value'], FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
     }
 
     /**
