@@ -164,8 +164,8 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addSyncPublishedMessageForMappingsMethod();
         $script .= $this->addSyncUnpublishedMessageForMappingsMethod();
         $script .= $this->addIsSynchronizationEnabledMethod();
-        $script .= $this->addSendToMemoryMethod();
-        $script .= $this->addSynchronizationMethod();
+        $script .= $this->addSendToInMemoryStorageMethod();
+        $script .= $this->addSendMessageMethod();
 
         return $script;
     }
@@ -635,7 +635,7 @@ public function syncPublishedMessage()
             'params' => \$decodedParams,
         ]
     ];
-    \$this->synchronize(\$message);
+    \$this->sendMessage(\$message);
 }
         ";
     }
@@ -687,7 +687,7 @@ public function syncUnpublishedMessage()
         ]
     ];
 
-    \$this->synchronize(\$message);
+    \$this->sendMessage(\$message);
 }
         ";
     }
@@ -724,7 +724,7 @@ public function syncUnpublishedMessage()
                 'params' => \$decodedParams,
             ]
         ];
-        \$this->synchronize(\$message);
+        \$this->sendMessage(\$message);
     }
             ";
         }
@@ -777,7 +777,7 @@ public function syncPublishedMessageForMappingResource()
             ]
         ];
 
-        \$this->synchronize(\$message);
+        \$this->sendMessage(\$message);
     }
             ";
         }
@@ -823,7 +823,7 @@ public function syncUnpublishedMessageForMappingResource()
                     'resource' => '$resource',
                 ]
             ];
-            \$this->synchronize(\$message);
+            \$this->sendMessage(\$message);
         }
     }
             ";
@@ -870,7 +870,7 @@ public function syncPublishedMessageForMappings()
                     'resource' => '$resource',
                 ]
             ];
-            \$this->synchronize(\$message);
+            \$this->sendMessage(\$message);
         }
     }
             ";
@@ -1201,11 +1201,19 @@ public function isSynchronizationEnabled(): bool
     }
 
     /**
+     * @return bool
+     */
+    protected function getInMemorySyncEnabled(): bool
+    {
+        return $this->parameters['in_memory_sync_enabled']['value'] ?? false;
+    }
+
+    /**
      * @return string
      */
-    protected function addSynchronizationMethod(): string
+    protected function addSendMessageMethod(): string
     {
-        $isInMemorySynchronizationEnabled = $this->getConfig()->isInMemorySynchronizationEnabled();
+        $inMemorySyncEnabled = $this->getInMemorySyncEnabled();
 
         return "
 /**
@@ -1213,15 +1221,15 @@ public function isSynchronizationEnabled(): bool
  *
  * @return void
  */
-protected function synchronize(array \$message)
+protected function sendMessage(array \$message)
 {
     if (\$this->_locator === null) {
         \$this->_locator = \\Spryker\\Zed\\Kernel\\Locator::getInstance();
     }
 
     \$synchronizationFacade = \$this->_locator->synchronization()->facade();
-    if ($isInMemorySynchronizationEnabled && method_exists(\$synchronizationFacade, 'addInMemoryMessage')) {
-        \$this->sendToMemory(\$message);
+    if ($inMemorySyncEnabled && method_exists(\$synchronizationFacade, 'addSyncMessageToInMemoryStorage')) {
+        \$this->sendToInMemoryStorage(\$message);
 
         return;
     }
@@ -1236,7 +1244,7 @@ protected function synchronize(array \$message)
      *
      * @return string
      */
-    protected function addSendToMemoryMethod(): string
+    protected function addSendToInMemoryStorageMethod(): string
     {
         $queueName = $this->getParameter('queue_group')['value'];
         $resource = $this->getParameter('resource')['value'];
@@ -1274,7 +1282,7 @@ protected function synchronize(array \$message)
  *
  * @return void
  */
-protected function sendToMemory(array \$message)
+protected function sendToInMemoryStorage(array \$message)
 {
     \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
     \$queueSendTransfer->setBody(json_encode(\$message));
@@ -1295,7 +1303,7 @@ protected function sendToMemory(array \$message)
     }
 
     \$synchronizationFacade = \$this->_locator->synchronization()->facade();
-    \$synchronizationFacade->addInMemoryMessage(\$synchronizationMessageTransfer);
+    \$synchronizationFacade->addSyncMessageToInMemoryStorage(\$synchronizationMessageTransfer);
 }
         ";
     }

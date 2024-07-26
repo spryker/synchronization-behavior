@@ -80,18 +80,4 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
     {
         return static::DATA_COLUMN_TYPE;
     }
-
-    /**
-     * Specification:
-     * - Returns true if in-memory synchronization is enabled.
-     * - In-memory synchronization is used to synchronize data in the same request instead of using the queue.
-     *
-     * @api
-     *
-     * @return bool
-     */
-    public function isInMemorySynchronizationEnabled(): bool
-    {
-        return false;
-    }
 }
