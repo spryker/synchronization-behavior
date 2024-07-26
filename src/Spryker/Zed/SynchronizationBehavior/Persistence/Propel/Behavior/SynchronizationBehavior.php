@@ -164,6 +164,7 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addSyncPublishedMessageForMappingsMethod();
         $script .= $this->addSyncUnpublishedMessageForMappingsMethod();
         $script .= $this->addIsSynchronizationEnabledMethod();
+        $script .= $this->addInMemorySyncEnabledMethod();
         $script .= $this->addSendToInMemoryStorageMethod();
         $script .= $this->addSendMessageMethod();
 
@@ -1200,12 +1201,36 @@ public function isSynchronizationEnabled(): bool
         return $table;
     }
 
-    /**
-     * @return bool
-     */
-    protected function getInMemorySyncEnabled(): bool
+    protected function getInMemorySyncEnabled(): int
     {
-        return $this->parameters['in_memory_sync_enabled']['value'] ?? false;
+        $parameters = $this->getParameters();
+        if (!isset($parameters['in_memory_sync_enabled'])) {
+            return 0;
+        }
+
+        if (!isset($parameters['in_memory_sync_enabled']['value'])) {
+            return 0;
+        }
+
+        return filter_var($parameters['in_memory_sync_enabled']['value'], FILTER_VALIDATE_BOOLEAN) ? 1 : 0;;
+    }
+
+    /**
+     * @return string
+     */
+    protected function addInMemorySyncEnabledMethod(): string
+    {
+        $inMemorySyncEnabled = $this->getInMemorySyncEnabled();
+
+        return "
+/**
+ * @return int
+ */
+protected function getInMemorySyncEnabled(): int
+{
+    return $inMemorySyncEnabled;
+}
+        ";
     }
 
     /**
@@ -1213,22 +1238,20 @@ public function isSynchronizationEnabled(): bool
      */
     protected function addSendMessageMethod(): string
     {
-        $inMemorySyncEnabled = $this->getInMemorySyncEnabled();
-
         return "
 /**
  * @param array \$message
  *
  * @return void
  */
-protected function sendMessage(array \$message)
+protected function sendMessage(array \$message): void
 {
     if (\$this->_locator === null) {
         \$this->_locator = \\Spryker\\Zed\\Kernel\\Locator::getInstance();
     }
 
     \$synchronizationFacade = \$this->_locator->synchronization()->facade();
-    if ($inMemorySyncEnabled && method_exists(\$synchronizationFacade, 'addSyncMessageToInMemoryStorage')) {
+    if (\$this->getInMemorySyncEnabled() && method_exists(\$synchronizationFacade, 'addSyncMessageToInMemoryStorage')) {
         \$this->sendToInMemoryStorage(\$message);
 
         return;
@@ -1282,7 +1305,7 @@ protected function sendMessage(array \$message)
  *
  * @return void
  */
-protected function sendToInMemoryStorage(array \$message)
+protected function sendToInMemoryStorage(array \$message): void
 {
     \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
     \$queueSendTransfer->setBody(json_encode(\$message));
