@@ -1198,11 +1198,11 @@ public function isSynchronizationEnabled(): bool
     }
 
     /**
-     * @return int
+     * @return bool
      */
-    protected function isDirectSyncPerTableDisabled(): int
+    protected function isDirectSyncPerTableDisabled(): bool
     {
-        return isset($this->getParameters()['direct_sync_disabled']) ? 1 : 0;
+        return isset($this->getParameters()['direct_sync_disabled']);
     }
 
     /**
@@ -1210,16 +1210,20 @@ public function isSynchronizationEnabled(): bool
      */
     protected function addIsDirectSyncEnabledMethod(): string
     {
-        $isDirectSynchronizationEnabled = $this->getConfig()->isDirectSynchronizationEnabled() ? 1 : 0;
+        $isDirectSynchronizationEnabled = $this->getConfig()->isDirectSynchronizationEnabled();
         $isDirectSyncPerTableDisabled = $this->isDirectSyncPerTableDisabled();
+
+        $isDirectSyncEnabled = ($isDirectSynchronizationEnabled && !$isDirectSyncPerTableDisabled)
+            ? static::SYNCHRONIZATION_ENABLED
+            : static::SYNCHRONIZATION_DISABLED;
 
         return "
 /**
- * @return int
+ * @return bool
  */
-protected function isDirectSyncEnabled(): int
+protected function isDirectSyncEnabled(): bool
 {
-    return $isDirectSynchronizationEnabled && !$isDirectSyncPerTableDisabled;
+    return $isDirectSyncEnabled;
 }
         ";
     }
