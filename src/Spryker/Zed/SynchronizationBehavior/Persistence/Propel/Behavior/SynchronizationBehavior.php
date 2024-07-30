@@ -1202,11 +1202,11 @@ public function isSynchronizationEnabled(): bool
     }
 
     /**
-     * @return bool
+     * @return int
      */
-    protected function isDirectSyncPerEntityDisabled(): bool
+    protected function isDirectSyncPerEntityDisabled(): int
     {
-        return isset($this->getParameters()['direct_sync_disabled']);
+        return isset($this->getParameters()['direct_sync_disabled']) ? 1 : 0;
     }
 
     /**
@@ -1214,7 +1214,7 @@ public function isSynchronizationEnabled(): bool
      */
     protected function addIsDirectSyncEnabledMethod(): string
     {
-        $isDirectSynchronizationEnabled = $this->getConfig()->isDirectSynchronizationEnabled();
+        $isDirectSynchronizationEnabled = $this->getConfig()->isDirectSynchronizationEnabled() ? 1 : 0;
         $isDirectSyncPerEntityDisabled = $this->isDirectSyncPerEntityDisabled();
 
         return "
@@ -1246,7 +1246,7 @@ protected function sendMessage(array \$message): void
     }
 
     \$synchronizationFacade = \$this->_locator->synchronization()->facade();
-    if (\$this->getInMemorySyncEnabled() && method_exists(\$synchronizationFacade, 'addSynchronizationMessageToBuffer')) {
+    if (\$this->isDirectSyncEnabled() && method_exists(\$synchronizationFacade, 'addSynchronizationMessageToBuffer')) {
         \$this->sendToBuffer(\$message);
 
         return;
