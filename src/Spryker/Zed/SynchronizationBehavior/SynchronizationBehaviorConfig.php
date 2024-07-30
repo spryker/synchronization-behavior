@@ -83,8 +83,8 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
 
     /**
      * Specification:
-     * - Enables or disables direct synchronization for all modules.
-     * - Direct synchronization can be disabled for individual queues using the behavior parameter: <parameter name="direct_sync_disabled"/>.
+     * - Enables or disables direct synchronization for all tables with synchronization behavior.
+     * - Direct synchronization can be disabled for individual tables using the behavior parameter: `<parameter name="direct_sync_disabled"/>`.
      *
      * @api
      *

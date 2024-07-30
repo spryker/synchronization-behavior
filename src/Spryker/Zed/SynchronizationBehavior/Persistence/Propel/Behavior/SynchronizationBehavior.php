@@ -164,6 +164,7 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addSyncPublishedMessageForMappingsMethod();
         $script .= $this->addSyncUnpublishedMessageForMappingsMethod();
         $script .= $this->addIsSynchronizationEnabledMethod();
+        $script .= $this->addGetQueueMethod();
         $script .= $this->addIsDirectSyncEnabledMethod();
         $script .= $this->addSendToBufferMethod();
         $script .= $this->addSendMessageMethod();
@@ -529,7 +530,6 @@ protected function setGeneratedKeyForMappingResource()
      */
     protected function addSendToQueueMethod()
     {
-        $queueName = $this->getParameter('queue_group')['value'];
         $queuePoolName = $this->getQueuePoolName();
         $hasStore = $this->hasStore();
         $hasLocale = $this->hasLocale();
@@ -551,10 +551,6 @@ protected function setGeneratedKeyForMappingResource()
             $setMessageQueueRouting = "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
         }
 
-        if ($queueName === null) {
-            $queueName = $this->getParameter('resource')['value'];
-        }
-
         return "
 /**
  * @param array \$message
@@ -573,7 +569,7 @@ protected function sendToQueue(array \$message)
     $setMessageQueueRouting
 
     \$queueClient = \$this->_locator->queue()->client();
-    \$queueClient->sendMessage('$queueName', \$queueSendTransfer);
+    \$queueClient->sendMessage(\$this->getQueueName(), \$queueSendTransfer);
 }
         ";
     }
@@ -1204,7 +1200,7 @@ public function isSynchronizationEnabled(): bool
     /**
      * @return int
      */
-    protected function isDirectSyncPerEntityDisabled(): int
+    protected function isDirectSyncPerTableDisabled(): int
     {
         return isset($this->getParameters()['direct_sync_disabled']) ? 1 : 0;
     }
@@ -1215,7 +1211,7 @@ public function isSynchronizationEnabled(): bool
     protected function addIsDirectSyncEnabledMethod(): string
     {
         $isDirectSynchronizationEnabled = $this->getConfig()->isDirectSynchronizationEnabled() ? 1 : 0;
-        $isDirectSyncPerEntityDisabled = $this->isDirectSyncPerEntityDisabled();
+        $isDirectSyncPerTableDisabled = $this->isDirectSyncPerTableDisabled();
 
         return "
 /**
@@ -1223,7 +1219,28 @@ public function isSynchronizationEnabled(): bool
  */
 protected function isDirectSyncEnabled(): int
 {
-    return $isDirectSynchronizationEnabled && !$isDirectSyncPerEntityDisabled;
+    return $isDirectSynchronizationEnabled && !$isDirectSyncPerTableDisabled;
+}
+        ";
+    }
+
+    /**
+     * @return string
+     */
+    protected function addGetQueueMethod(): string
+    {
+        $queueName = $this->getParameter('queue_group')['value'];
+        if ($queueName === null) {
+            $queueName = $this->getParameter('resource')['value'];
+        }
+
+        return "
+/**
+ * @return string
+ */
+protected function getQueueName(): string
+{
+    return '$queueName';
 }
         ";
     }
@@ -1264,7 +1281,6 @@ protected function sendMessage(array \$message): void
      */
     protected function addSendToBufferMethod(): string
     {
-        $queueName = $this->getParameter('queue_group')['value'];
         $resource = $this->getParameter('resource')['value'];
         $queuePoolName = $this->getQueuePoolName();
         $hasStore = $this->hasStore();
@@ -1287,10 +1303,6 @@ protected function sendMessage(array \$message): void
             $setMessageQueueRouting = "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
         }
 
-        if ($queueName === null) {
-            $queueName = $resource;
-        }
-
         $tableName = $this->getTableOrFail()->getName();
         $syncDestinationType = preg_match('/_storage$/', $tableName) ? 'storage' : (preg_match('/_search$/', $tableName) ? 'search' : '');
 
@@ -1310,7 +1322,7 @@ protected function sendToBuffer(array \$message): void
     \$synchronizationMessageTransfer = new \\Generated\\Shared\\Transfer\\SynchronizationMessageTransfer();
     \$synchronizationMessageTransfer->setData(\$message[\$operationKey] ?? []);
     \$synchronizationMessageTransfer->setFallbackQueueMessage(\$queueSendTransfer);
-    \$synchronizationMessageTransfer->setFallbackQueueName('$queueName');
+    \$synchronizationMessageTransfer->setFallbackQueueName(\$this->getQueueName());
     \$synchronizationMessageTransfer->setSyncDestinationType('$syncDestinationType');
     \$synchronizationMessageTransfer->setOperationType(\$operationKey);
     \$synchronizationMessageTransfer->setResource('$resource');
