@@ -1201,6 +1201,9 @@ public function isSynchronizationEnabled(): bool
         return $table;
     }
 
+    /**
+     * @return int
+     */
     protected function getInMemorySyncEnabled(): int
     {
         $parameters = $this->getParameters();
