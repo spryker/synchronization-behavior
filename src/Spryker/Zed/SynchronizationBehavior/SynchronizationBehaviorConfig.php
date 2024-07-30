@@ -80,4 +80,18 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
     {
         return static::DATA_COLUMN_TYPE;
     }
+
+    /**
+     * Specification:
+     * - Enables or disables direct synchronization for all modules.
+     * - Direct synchronization can be disabled for individual queues using the behavior parameter: <parameter name="direct_sync_disabled"/>.
+     *
+     * @api
+     *
+     * @return bool
+     */
+    public function isDirectSynchronizationEnabled(): bool
+    {
+        return false;
+    }
 }

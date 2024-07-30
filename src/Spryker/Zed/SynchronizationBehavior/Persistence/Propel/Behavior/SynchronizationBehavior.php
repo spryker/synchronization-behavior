@@ -164,8 +164,8 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addSyncPublishedMessageForMappingsMethod();
         $script .= $this->addSyncUnpublishedMessageForMappingsMethod();
         $script .= $this->addIsSynchronizationEnabledMethod();
-        $script .= $this->addInMemorySyncEnabledMethod();
-        $script .= $this->addSendToInMemoryStorageMethod();
+        $script .= $this->addIsDirectSyncEnabledMethod();
+        $script .= $this->addSendToBufferMethod();
         $script .= $this->addSendMessageMethod();
 
         return $script;
@@ -1202,36 +1202,28 @@ public function isSynchronizationEnabled(): bool
     }
 
     /**
-     * @return int
+     * @return bool
      */
-    protected function getInMemorySyncEnabled(): int
+    protected function isDirectSyncPerEntityDisabled(): bool
     {
-        $parameters = $this->getParameters();
-        if (!isset($parameters['in_memory_sync_enabled'])) {
-            return 0;
-        }
-
-        if (!isset($parameters['in_memory_sync_enabled']['value'])) {
-            return 0;
-        }
-
-        return filter_var($parameters['in_memory_sync_enabled']['value'], FILTER_VALIDATE_BOOLEAN) ? 1 : 0;
+        return isset($this->getParameters()['direct_sync_disabled']);
     }
 
     /**
      * @return string
      */
-    protected function addInMemorySyncEnabledMethod(): string
+    protected function addIsDirectSyncEnabledMethod(): string
     {
-        $inMemorySyncEnabled = $this->getInMemorySyncEnabled();
+        $isDirectSynchronizationEnabled = $this->getConfig()->isDirectSynchronizationEnabled();
+        $isDirectSyncPerEntityDisabled = $this->isDirectSyncPerEntityDisabled();
 
         return "
 /**
  * @return int
  */
-protected function getInMemorySyncEnabled(): int
+protected function isDirectSyncEnabled(): int
 {
-    return $inMemorySyncEnabled;
+    return $isDirectSynchronizationEnabled && !$isDirectSyncPerEntityDisabled;
 }
         ";
     }
@@ -1254,8 +1246,8 @@ protected function sendMessage(array \$message): void
     }
 
     \$synchronizationFacade = \$this->_locator->synchronization()->facade();
-    if (\$this->getInMemorySyncEnabled() && method_exists(\$synchronizationFacade, 'addSyncMessageToInMemoryStorage')) {
-        \$this->sendToInMemoryStorage(\$message);
+    if (\$this->getInMemorySyncEnabled() && method_exists(\$synchronizationFacade, 'addSynchronizationMessageToBuffer')) {
+        \$this->sendToBuffer(\$message);
 
         return;
     }
@@ -1270,7 +1262,7 @@ protected function sendMessage(array \$message): void
      *
      * @return string
      */
-    protected function addSendToInMemoryStorageMethod(): string
+    protected function addSendToBufferMethod(): string
     {
         $queueName = $this->getParameter('queue_group')['value'];
         $resource = $this->getParameter('resource')['value'];
@@ -1308,7 +1300,7 @@ protected function sendMessage(array \$message): void
  *
  * @return void
  */
-protected function sendToInMemoryStorage(array \$message): void
+protected function sendToBuffer(array \$message): void
 {
     \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
     \$queueSendTransfer->setBody(json_encode(\$message));
@@ -1329,7 +1321,7 @@ protected function sendToInMemoryStorage(array \$message): void
     }
 
     \$synchronizationFacade = \$this->_locator->synchronization()->facade();
-    \$synchronizationFacade->addSyncMessageToInMemoryStorage(\$synchronizationMessageTransfer);
+    \$synchronizationFacade->addSynchronizationMessageToBuffer(\$synchronizationMessageTransfer);
 }
         ";
     }
