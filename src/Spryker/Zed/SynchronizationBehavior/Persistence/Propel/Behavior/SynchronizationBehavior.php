@@ -70,6 +70,20 @@ class SynchronizationBehavior extends Behavior
     ];
 
     /**
+     * @uses \Spryker\Zed\Synchronization\Business\Storage\SynchronizationStorage::DESTINATION_TYPE
+     *
+     * @var string
+     */
+    protected const DESTINATION_TYPE_STORAGE = 'storage';
+
+    /**
+     * @uses \Spryker\Zed\Synchronization\Business\Search\SynchronizationSearch::DESTINATION_TYPE
+     *
+     * @var string
+     */
+    protected const DESTINATION_TYPE_SEARCH = 'search';
+
+    /**
      * @return string
      */
     public function preSave()
@@ -1308,7 +1322,9 @@ protected function sendMessage(array \$message): void
         }
 
         $tableName = $this->getTableOrFail()->getName();
-        $syncDestinationType = preg_match('/_storage$/', $tableName) ? 'storage' : (preg_match('/_search$/', $tableName) ? 'search' : '');
+        $syncDestinationType = preg_match('/_storage$/', $tableName)
+            ? static::DESTINATION_TYPE_STORAGE
+            : (preg_match('/_search$/', $tableName) ? static::DESTINATION_TYPE_SEARCH : '');
 
         return "
 /**
