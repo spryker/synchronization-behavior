@@ -1235,7 +1235,7 @@ public function isSynchronizationEnabled(): bool
 /**
  * @return bool
  */
-public function isDirectSyncEnabled(): bool
+protected function isDirectSyncEnabled(): bool
 {
     return $isDirectSyncEnabled;
 }
