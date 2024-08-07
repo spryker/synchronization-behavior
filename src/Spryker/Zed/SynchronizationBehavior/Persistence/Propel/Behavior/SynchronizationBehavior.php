@@ -70,6 +70,20 @@ class SynchronizationBehavior extends Behavior
     ];
 
     /**
+     * @uses \Spryker\Zed\Synchronization\Business\Storage\SynchronizationStorage::DESTINATION_TYPE
+     *
+     * @var string
+     */
+    protected const DESTINATION_TYPE_STORAGE = 'storage';
+
+    /**
+     * @uses \Spryker\Zed\Synchronization\Business\Search\SynchronizationSearch::DESTINATION_TYPE
+     *
+     * @var string
+     */
+    protected const DESTINATION_TYPE_SEARCH = 'search';
+
+    /**
      * @return string
      */
     public function preSave()
@@ -164,6 +178,10 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addSyncPublishedMessageForMappingsMethod();
         $script .= $this->addSyncUnpublishedMessageForMappingsMethod();
         $script .= $this->addIsSynchronizationEnabledMethod();
+        $script .= $this->addGetQueueMethod();
+        $script .= $this->addIsDirectSyncEnabledMethod();
+        $script .= $this->addSendToBufferMethod();
+        $script .= $this->addSendMessageMethod();
 
         return $script;
     }
@@ -526,7 +544,6 @@ protected function setGeneratedKeyForMappingResource()
      */
     protected function addSendToQueueMethod()
     {
-        $queueName = $this->getParameter('queue_group')['value'];
         $queuePoolName = $this->getQueuePoolName();
         $hasStore = $this->hasStore();
         $hasLocale = $this->hasLocale();
@@ -548,10 +565,6 @@ protected function setGeneratedKeyForMappingResource()
             $setMessageQueueRouting = "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
         }
 
-        if ($queueName === null) {
-            $queueName = $this->getParameter('resource')['value'];
-        }
-
         return "
 /**
  * @param array \$message
@@ -570,7 +583,7 @@ protected function sendToQueue(array \$message)
     $setMessageQueueRouting
 
     \$queueClient = \$this->_locator->queue()->client();
-    \$queueClient->sendMessage('$queueName', \$queueSendTransfer);
+    \$queueClient->sendMessage(\$this->getQueueName(), \$queueSendTransfer);
 }
         ";
     }
@@ -633,7 +646,7 @@ public function syncPublishedMessage()
             'params' => \$decodedParams,
         ]
     ];
-    \$this->sendToQueue(\$message);
+    \$this->sendMessage(\$message);
 }
         ";
     }
@@ -685,7 +698,7 @@ public function syncUnpublishedMessage()
         ]
     ];
 
-    \$this->sendToQueue(\$message);
+    \$this->sendMessage(\$message);
 }
         ";
     }
@@ -722,7 +735,7 @@ public function syncUnpublishedMessage()
                 'params' => \$decodedParams,
             ]
         ];
-        \$this->sendToQueue(\$message);
+        \$this->sendMessage(\$message);
     }
             ";
         }
@@ -775,7 +788,7 @@ public function syncPublishedMessageForMappingResource()
             ]
         ];
 
-        \$this->sendToQueue(\$message);
+        \$this->sendMessage(\$message);
     }
             ";
         }
@@ -821,7 +834,7 @@ public function syncUnpublishedMessageForMappingResource()
                     'resource' => '$resource',
                 ]
             ];
-            \$this->sendToQueue(\$message);
+            \$this->sendMessage(\$message);
         }
     }
             ";
@@ -868,7 +881,7 @@ public function syncPublishedMessageForMappings()
                     'resource' => '$resource',
                 ]
             ];
-            \$this->sendToQueue(\$message);
+            \$this->sendMessage(\$message);
         }
     }
             ";
@@ -1196,5 +1209,152 @@ public function isSynchronizationEnabled(): bool
         }
 
         return $table;
+    }
+
+    /**
+     * @return bool
+     */
+    protected function isDirectSyncPerTableDisabled(): bool
+    {
+        return isset($this->getParameters()['direct_sync_disabled']);
+    }
+
+    /**
+     * @return string
+     */
+    protected function addIsDirectSyncEnabledMethod(): string
+    {
+        $isDirectSynchronizationEnabled = $this->getConfig()->isDirectSynchronizationEnabled();
+        $isDirectSyncPerTableDisabled = $this->isDirectSyncPerTableDisabled();
+
+        $isDirectSyncEnabled = ($isDirectSynchronizationEnabled && !$isDirectSyncPerTableDisabled)
+            ? static::SYNCHRONIZATION_ENABLED
+            : static::SYNCHRONIZATION_DISABLED;
+
+        return "
+/**
+ * @return bool
+ */
+protected function isDirectSyncEnabled(): bool
+{
+    return $isDirectSyncEnabled;
+}
+        ";
+    }
+
+    /**
+     * @return string
+     */
+    protected function addGetQueueMethod(): string
+    {
+        $queueName = $this->getParameter('queue_group')['value'];
+        if ($queueName === null) {
+            $queueName = $this->getParameter('resource')['value'];
+        }
+
+        return "
+/**
+ * @return string
+ */
+protected function getQueueName(): string
+{
+    return '$queueName';
+}
+        ";
+    }
+
+    /**
+     * @return string
+     */
+    protected function addSendMessageMethod(): string
+    {
+        return "
+/**
+ * @param array \$message
+ *
+ * @return void
+ */
+protected function sendMessage(array \$message): void
+{
+    if (\$this->_locator === null) {
+        \$this->_locator = \\Spryker\\Zed\\Kernel\\Locator::getInstance();
+    }
+
+    \$synchronizationFacade = \$this->_locator->synchronization()->facade();
+    if (\$this->isDirectSyncEnabled() && method_exists(\$synchronizationFacade, 'addSynchronizationMessageToBuffer')) {
+        \$this->sendToBuffer(\$message);
+
+        return;
+    }
+
+    \$this->sendToQueue(\$message);
+}
+        ";
+    }
+
+    /**
+     * @throws \Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException
+     *
+     * @return string
+     */
+    protected function addSendToBufferMethod(): string
+    {
+        $resource = $this->getParameter('resource')['value'];
+        $queuePoolName = $this->getQueuePoolName();
+        $hasStore = $this->hasStore();
+        $hasLocale = $this->hasLocale();
+
+        if ($hasStore && $queuePoolName) {
+            throw new InvalidConfigurationException(
+                sprintf(static::ERROR_MUTUALLY_EXCLUSIVE_PARAMETERS, $this->getTableOrFail()->getPhpName()),
+            );
+        }
+
+        $setLocale = $hasLocale ? '$synchronizationMessageTransfer->setLocale($this->locale);' : '';
+
+        $setMessageQueueRouting = '';
+        if ($hasStore) {
+            $setMessageQueueRouting = '$queueSendTransfer->setStoreName($this->store);';
+        }
+
+        if ($queuePoolName) {
+            $setMessageQueueRouting = "\$queueSendTransfer->setQueuePoolName('$queuePoolName');";
+        }
+
+        $tableName = $this->getTableOrFail()->getName();
+        $syncDestinationType = preg_match('/_storage$/', $tableName)
+            ? static::DESTINATION_TYPE_STORAGE
+            : (preg_match('/_search$/', $tableName) ? static::DESTINATION_TYPE_SEARCH : '');
+
+        return "
+/**
+ * @param array \$message
+ *
+ * @return void
+ */
+protected function sendToBuffer(array \$message): void
+{
+    \$queueSendTransfer = new \\Generated\\Shared\\Transfer\\QueueSendMessageTransfer();
+    \$queueSendTransfer->setBody(json_encode(\$message));
+    $setMessageQueueRouting
+
+    \$operationKey = array_key_first(\$message);
+    \$synchronizationMessageTransfer = new \\Generated\\Shared\\Transfer\\SynchronizationMessageTransfer();
+    \$synchronizationMessageTransfer->setData(\$message[\$operationKey] ?? []);
+    \$synchronizationMessageTransfer->setFallbackQueueMessage(\$queueSendTransfer);
+    \$synchronizationMessageTransfer->setFallbackQueueName(\$this->getQueueName());
+    \$synchronizationMessageTransfer->setSyncDestinationType('$syncDestinationType');
+    \$synchronizationMessageTransfer->setOperationType(\$operationKey);
+    \$synchronizationMessageTransfer->setResource('$resource');
+    $setLocale
+
+    if (\$this->_locator === null) {
+        \$this->_locator = \\Spryker\\Zed\\Kernel\\Locator::getInstance();
+    }
+
+    \$synchronizationFacade = \$this->_locator->synchronization()->facade();
+    \$synchronizationFacade->addSynchronizationMessageToBuffer(\$synchronizationMessageTransfer);
+}
+        ";
     }
 }
