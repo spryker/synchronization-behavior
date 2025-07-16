@@ -26,6 +26,25 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
     protected const DATA_COLUMN_TYPE = 'CLOB';
 
     /**
+     * @var bool
+     */
+    protected const SYNC_QUEUE_OPTIMIZATION_ENABLED = false;
+
+    /**
+     * Specification:
+     * - Determines if sync queue optimization is enabled.
+     * - This feature reduces sync messages by only processing changed store-locale combinations.
+     * 
+     * @api
+     * 
+     * @return bool
+     */
+    public function isSyncQueueOptimizationEnabled(): bool
+    {
+        return static::SYNC_QUEUE_OPTIMIZATION_ENABLED;
+    }
+
+    /**
      * Specification:
      * - Enables/disables synchronization for all the modules.
      * - This value can be overridden on a per-module basis.

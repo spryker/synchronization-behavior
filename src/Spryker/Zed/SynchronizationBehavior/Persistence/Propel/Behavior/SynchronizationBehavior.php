@@ -84,14 +84,30 @@ class SynchronizationBehavior extends Behavior
     protected const DESTINATION_TYPE_SEARCH = 'search';
 
     /**
+     * - Guarantee first processing over parent
+     *
+     * @var int
+     */
+    protected $tableModificationOrder = 10;
+
+    /**
      * @return string
      */
     public function preSave()
     {
+        $code = "
+        \$this->setGeneratedKey();
+        \$this->setGeneratedKeyForMappingResource();
+        \$this->setGeneratedAliasKeys();";
+
         return "
-\$this->setGeneratedKey();
-\$this->setGeneratedKeyForMappingResource();
-\$this->setGeneratedAliasKeys();
+if (\$this->isSyncQueueOptimizationEnabled()) {
+    if (\$this->isNew() || \$this->isModified()) {
+        $code
+    }
+} else {
+    $code
+}
         ";
     }
 
@@ -100,10 +116,20 @@ class SynchronizationBehavior extends Behavior
      */
     public function postSave()
     {
-        return "
+        $code = "
 \$this->syncPublishedMessage();
 \$this->syncPublishedMessageForMappingResource();
 \$this->syncPublishedMessageForMappings();
+        ";
+
+        return "
+if (\$this->isSyncQueueOptimizationEnabled()) {
+    if (\$affectedRows > 0) {
+        $code
+    }
+} else {
+    $code
+}
         ";
     }
 
@@ -179,6 +205,7 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addIsDirectSyncEnabledMethod();
         $script .= $this->addSendToBufferMethod();
         $script .= $this->addSendMessageMethod();
+        $script .= $this->addIsOptimizationEnabledMethod();
 
         return $script;
     }
@@ -1235,6 +1262,26 @@ public function isSynchronizationEnabled(): bool
 protected function isDirectSyncEnabled(): bool
 {
     return $isDirectSyncEnabled;
+}
+        ";
+    }
+
+    /**
+     * @return string
+     */
+    protected function addIsOptimizationEnabledMethod(): string
+    {
+        $isSyncQueueOptimizationEnabled = $this->getConfig()->isSyncQueueOptimizationEnabled()
+            ? static::SYNCHRONIZATION_ENABLED
+            : static::SYNCHRONIZATION_DISABLED;
+
+        return "
+/**
+ * @return bool
+ */
+protected function isSyncQueueOptimizationEnabled(): bool
+{
+    return $isSyncQueueOptimizationEnabled;
 }
         ";
     }
