@@ -88,10 +88,7 @@ class SynchronizationBehavior extends Behavior
      */
     public function preSave()
     {
-        return "
-\$this->setGeneratedKey();
-\$this->setGeneratedKeyForMappingResource();
-\$this->setGeneratedAliasKeys();
+        return "\$this->preSaveSynchronizationBehavior();
         ";
     }
 
@@ -100,10 +97,7 @@ class SynchronizationBehavior extends Behavior
      */
     public function postSave()
     {
-        return "
-\$this->syncPublishedMessage();
-\$this->syncPublishedMessageForMappingResource();
-\$this->syncPublishedMessageForMappings();
+        return "\$this->postSaveSynchronizationBehavior();
         ";
     }
 
@@ -112,10 +106,7 @@ class SynchronizationBehavior extends Behavior
      */
     public function postDelete()
     {
-        return "
-\$this->syncUnpublishedMessage();
-\$this->syncUnpublishedMessageForMappingResource();
-\$this->syncUnpublishedMessageForMappings();
+        return "\$this->postDeleteSynchronizationBehavior();
         ";
     }
 
@@ -132,15 +123,16 @@ class SynchronizationBehavior extends Behavior
     public function addParameter(array $parameter): void
     {
         $parameter = array_change_key_case($parameter, CASE_LOWER);
+        $name = (string)$parameter['name'];
 
-        $this->parameters[$parameter['name']] = [];
+        $this->parameters[$name] = [];
 
         if (isset($parameter['value'])) {
-            $this->parameters[$parameter['name']]['value'] = $parameter['value'];
+            $this->parameters[$name]['value'] = $parameter['value'];
         }
 
         if (isset($parameter['required'])) {
-            $this->parameters[$parameter['name']]['required'] = $parameter['required'];
+            $this->parameters[$name]['required'] = $parameter['required'];
         }
     }
 
@@ -179,6 +171,9 @@ class SynchronizationBehavior extends Behavior
         $script .= $this->addIsDirectSyncEnabledMethod();
         $script .= $this->addSendToBufferMethod();
         $script .= $this->addSendMessageMethod();
+        $script .= $this->addPreSaveSynchronizationBehaviorMethod();
+        $script .= $this->addPostSaveSynchronizationBehaviorMethod();
+        $script .= $this->addPostDeleteSynchronizationBehaviorMethod();
 
         return $script;
     }
@@ -1351,6 +1346,60 @@ protected function sendToBuffer(array \$message): void
 
     \$synchronizationFacade = \$this->_locator->synchronization()->facade();
     \$synchronizationFacade->addSynchronizationMessageToBuffer(\$synchronizationMessageTransfer);
+}
+        ";
+    }
+
+    /**
+     * @return string
+     */
+    protected function addPreSaveSynchronizationBehaviorMethod()
+    {
+        return "
+/**
+ * @return void
+ */
+public function preSaveSynchronizationBehavior(): void
+{
+    \$this->setGeneratedKey();
+    \$this->setGeneratedKeyForMappingResource();
+    \$this->setGeneratedAliasKeys();
+}
+        ";
+    }
+
+    /**
+     * @return string
+     */
+    protected function addPostSaveSynchronizationBehaviorMethod()
+    {
+        return "
+/**
+ * @return void
+ */
+public function postSaveSynchronizationBehavior(): void
+{
+    \$this->syncPublishedMessage();
+    \$this->syncPublishedMessageForMappingResource();
+    \$this->syncPublishedMessageForMappings();
+}
+        ";
+    }
+
+    /**
+     * @return string
+     */
+    protected function addPostDeleteSynchronizationBehaviorMethod()
+    {
+        return "
+/**
+ * @return void
+ */
+public function postDeleteSynchronizationBehavior(): void
+{
+    \$this->syncUnpublishedMessage();
+    \$this->syncUnpublishedMessageForMappingResource();
+    \$this->syncUnpublishedMessageForMappings();
 }
         ";
     }
