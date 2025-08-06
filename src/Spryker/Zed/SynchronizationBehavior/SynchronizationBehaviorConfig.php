@@ -7,6 +7,7 @@
 
 namespace Spryker\Zed\SynchronizationBehavior;
 
+use Spryker\Shared\SynchronizationBehavior\SynchronizationBehaviorConstants;
 use Spryker\Zed\Kernel\AbstractBundleConfig;
 
 class SynchronizationBehaviorConfig extends AbstractBundleConfig
@@ -85,6 +86,8 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
      * Specification:
      * - Enables or disables direct synchronization for all tables with synchronization behavior.
      * - Direct synchronization can be disabled for individual tables using the behavior parameter: `<parameter name="direct_sync_disabled"/>`.
+     * - Direct synchronization only works when Dynamic Store is enabled.
+     * - When Dynamic Store is disabled, direct synchronization is automatically disabled regardless of this setting.
      *
      * @api
      *
@@ -93,5 +96,18 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
     public function isDirectSynchronizationEnabled(): bool
     {
         return false;
+    }
+
+    /**
+     * Specification:
+     * - Returns true if the store routing is enabled.
+     *
+     * @api
+     *
+     * @return bool
+     */
+    public function isStoreRoutingEnabled(): bool
+    {
+        return $this->get(SynchronizationBehaviorConstants::IS_STORE_ROUTING_ENABLED, false);
     }
 }

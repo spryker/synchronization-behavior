@@ -86,7 +86,7 @@ class SynchronizationBehavior extends Behavior
     /**
      * @return string
      */
-    public function preSave()
+    public function preSave(): string
     {
         return "
 \$this->setGeneratedKey();
@@ -98,7 +98,7 @@ class SynchronizationBehavior extends Behavior
     /**
      * @return string
      */
-    public function postSave()
+    public function postSave(): string
     {
         return "
 \$this->syncPublishedMessage();
@@ -110,7 +110,7 @@ class SynchronizationBehavior extends Behavior
     /**
      * @return string
      */
-    public function postDelete()
+    public function postDelete(): string
     {
         return "
 \$this->syncUnpublishedMessage();
@@ -147,7 +147,7 @@ class SynchronizationBehavior extends Behavior
     /**
      * @return string
      */
-    public function objectAttributes()
+    public function objectAttributes(): string
     {
         $script = '';
         $script .= $this->addBaseAttribute();
@@ -158,7 +158,7 @@ class SynchronizationBehavior extends Behavior
     /**
      * @return string
      */
-    public function objectMethods()
+    public function objectMethods(): string
     {
         $script = '';
         $script .= $this->addToggleEnqueueMethod();
@@ -270,7 +270,7 @@ class SynchronizationBehavior extends Behavior
     /**
      * @return string
      */
-    public function addBaseAttribute()
+    public function addBaseAttribute(): string
     {
         return "
 /**
@@ -295,7 +295,7 @@ private \$_locator;
     /**
      * @return string
      */
-    protected function addToggleEnqueueMethod()
+    protected function addToggleEnqueueMethod(): string
     {
         return "
 /**
@@ -327,7 +327,7 @@ public function setIsSendingToQueue(\$_isSendingToQueue)
     /**
      * @return string
      */
-    protected function addGetStorageKeyBuilderMethod()
+    protected function addGetStorageKeyBuilderMethod(): string
     {
         return "
 /**
@@ -354,7 +354,7 @@ protected function getStorageKeyBuilder(\$resource)
      *
      * @return string
      */
-    protected function addGenerateKeyMethod()
+    protected function addGenerateKeyMethod(): string
     {
         $parameters = $this->getParameters();
         $keySuffix = null;
@@ -404,7 +404,7 @@ protected function setGeneratedKey()
      *
      * @return string
      */
-    protected function addGenerateMappingResourceKeyMethod()
+    protected function addGenerateMappingResourceKeyMethod(): string
     {
         $parameters = $this->getParameters();
         if (!$this->shouldUseMappingResources()) {
@@ -472,7 +472,7 @@ protected function setGeneratedKeyForMappingResource()
      *
      * @return void
      */
-    public function objectFilter(&$script)
+    public function objectFilter(string &$script): void
     {
         $parser = new PhpParser($script, true);
         $parser->replaceMethod('getData', $this->getNewGetDataMethod());
@@ -483,7 +483,7 @@ protected function setGeneratedKeyForMappingResource()
     /**
      * @return string
      */
-    protected function getNewSetDataMethod()
+    protected function getNewSetDataMethod(): string
     {
         $tableName = $this->getTableOrFail()->getPhpName();
 
@@ -520,7 +520,7 @@ protected function setGeneratedKeyForMappingResource()
     /**
      * @return string
      */
-    protected function getNewGetDataMethod()
+    protected function getNewGetDataMethod(): string
     {
         return "
     /**
@@ -539,7 +539,7 @@ protected function setGeneratedKeyForMappingResource()
      *
      * @return string
      */
-    protected function addSendToQueueMethod()
+    protected function addSendToQueueMethod(): string
     {
         $queuePoolName = $this->getQueuePoolName();
         $hasStore = $this->hasStore();
@@ -588,7 +588,7 @@ protected function sendToQueue(array \$message)
     /**
      * @return string
      */
-    protected function addSyncPublishedMessageMethod()
+    protected function addSyncPublishedMessageMethod(): string
     {
         $params = $this->getParams();
         $resource = $this->getParameter('resource')['value'];
@@ -651,7 +651,7 @@ public function syncPublishedMessage()
     /**
      * @return string
      */
-    protected function addSyncUnpublishedMessageMethod()
+    protected function addSyncUnpublishedMessageMethod(): string
     {
         $params = $this->getParams();
         $resource = $this->getParameter('resource')['value'];
@@ -705,7 +705,7 @@ public function syncUnpublishedMessage()
      *
      * @return string
      */
-    protected function addSyncPublishedMessageForMappingResourceMethod()
+    protected function addSyncPublishedMessageForMappingResourceMethod(): string
     {
         $params = $this->getParams();
         $resource = $this->getParameter('resource')['value'];
@@ -757,7 +757,7 @@ public function syncPublishedMessageForMappingResource()
      *
      * @return string
      */
-    protected function addSyncUnpublishedMessageForMappingResourceMethod()
+    protected function addSyncUnpublishedMessageForMappingResourceMethod(): string
     {
         $params = $this->getParams();
         $resource = $this->getParameter('resource')['value'];
@@ -808,7 +808,7 @@ public function syncUnpublishedMessageForMappingResource()
     /**
      * @return string
      */
-    protected function addSyncPublishedMessageForMappingsMethod()
+    protected function addSyncPublishedMessageForMappingsMethod(): string
     {
         $parameters = $this->getParameters();
         $resource = $this->getParameter('resource')['value'];
@@ -855,7 +855,7 @@ public function syncPublishedMessageForMappings()
     /**
      * @return string
      */
-    protected function addSyncUnpublishedMessageForMappingsMethod()
+    protected function addSyncUnpublishedMessageForMappingsMethod(): string
     {
         $parameters = $this->getParameters();
         $resource = $this->getParameter('resource')['value'];
@@ -904,7 +904,7 @@ public function syncUnpublishedMessageForMappings()
      *
      * @return string
      */
-    protected function addGenerateMappingsKeyMethod()
+    protected function addGenerateMappingsKeyMethod(): string
     {
         $parameters = $this->getParameters();
         $storeSetStatement = $this->getStoreStatement($parameters);
@@ -939,7 +939,7 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
     /**
      * @return bool
      */
-    protected function hasStore()
+    protected function hasStore(): bool
     {
         return isset($this->getParameters()['store']);
     }
@@ -963,7 +963,7 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
     /**
      * @return string|null
      */
-    protected function getQueuePoolName()
+    protected function getQueuePoolName(): ?string
     {
         $parameters = $this->getParameters();
         if (!isset($parameters['queue_pool'])) {
@@ -980,7 +980,7 @@ protected function generateMappingKey(\$source, \$sourceIdentifier)
     /**
      * @return string
      */
-    protected function getParams()
+    protected function getParams(): string
     {
         $params = '';
         if (isset($this->getParameters()['params'])) {
@@ -1222,9 +1222,11 @@ public function isSynchronizationEnabled(): bool
     protected function addIsDirectSyncEnabledMethod(): string
     {
         $isDirectSynchronizationEnabled = $this->getConfig()->isDirectSynchronizationEnabled();
+
+        $isDynamicStoreEnabled = $this->getConfig()->isStoreRoutingEnabled();
         $isDirectSyncPerTableDisabled = $this->isDirectSyncPerTableDisabled();
 
-        $isDirectSyncEnabled = ($isDirectSynchronizationEnabled && !$isDirectSyncPerTableDisabled)
+        $isDirectSyncEnabled = ($isDirectSynchronizationEnabled && !$isDirectSyncPerTableDisabled && $isDynamicStoreEnabled)
             ? static::SYNCHRONIZATION_ENABLED
             : static::SYNCHRONIZATION_DISABLED;
 
