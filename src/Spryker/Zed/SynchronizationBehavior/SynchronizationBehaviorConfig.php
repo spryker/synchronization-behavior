@@ -7,7 +7,6 @@
 
 namespace Spryker\Zed\SynchronizationBehavior;
 
-use Spryker\Shared\SynchronizationBehavior\SynchronizationBehaviorConstants;
 use Spryker\Zed\Kernel\AbstractBundleConfig;
 
 class SynchronizationBehaviorConfig extends AbstractBundleConfig
@@ -100,14 +99,14 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
 
     /**
      * Specification:
-     * - Returns true if the store routing is enabled.
+     * - Returns true if the Dynamic Store mode is enabled.
      *
      * @api
      *
      * @return bool
      */
-    public function isStoreRoutingEnabled(): bool
+    public function isDynamicStoreEnabled(): bool
     {
-        return $this->get(SynchronizationBehaviorConstants::IS_STORE_ROUTING_ENABLED, false);
+        return (bool)getenv('SPRYKER_DYNAMIC_STORE_MODE');
     }
 }

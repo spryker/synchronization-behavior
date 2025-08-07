@@ -1223,7 +1223,7 @@ public function isSynchronizationEnabled(): bool
     {
         $isDirectSynchronizationEnabled = $this->getConfig()->isDirectSynchronizationEnabled();
 
-        $isDynamicStoreEnabled = $this->getConfig()->isStoreRoutingEnabled();
+        $isDynamicStoreEnabled = $this->getConfig()->isDynamicStoreEnabled();
         $isDirectSyncPerTableDisabled = $this->isDirectSyncPerTableDisabled();
 
         $isDirectSyncEnabled = ($isDirectSynchronizationEnabled && !$isDirectSyncPerTableDisabled && $isDynamicStoreEnabled)
