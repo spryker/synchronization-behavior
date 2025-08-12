@@ -97,8 +97,7 @@ class SynchronizationBehavior extends Behavior
      */
     public function postSave()
     {
-        return "\$this->postSaveSynchronizationBehavior();
-        ";
+        return "if (\$affectedRows) {\n\t\$this->postSaveSynchronizationBehavior();\n}";
     }
 
     /**
