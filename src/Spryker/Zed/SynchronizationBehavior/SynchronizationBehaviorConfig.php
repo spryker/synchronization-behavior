@@ -85,6 +85,8 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
      * Specification:
      * - Enables or disables direct synchronization for all tables with synchronization behavior.
      * - Direct synchronization can be disabled for individual tables using the behavior parameter: `<parameter name="direct_sync_disabled"/>`.
+     * - Direct synchronization only works when Dynamic Store is enabled.
+     * - When Dynamic Store is disabled, direct synchronization is automatically disabled regardless of this setting.
      *
      * @api
      *
@@ -93,5 +95,18 @@ class SynchronizationBehaviorConfig extends AbstractBundleConfig
     public function isDirectSynchronizationEnabled(): bool
     {
         return false;
+    }
+
+    /**
+     * Specification:
+     * - Returns true if the Dynamic Store mode is enabled.
+     *
+     * @api
+     *
+     * @return bool
+     */
+    public function isDynamicStoreEnabled(): bool
+    {
+        return (bool)getenv('SPRYKER_DYNAMIC_STORE_MODE');
     }
 }
