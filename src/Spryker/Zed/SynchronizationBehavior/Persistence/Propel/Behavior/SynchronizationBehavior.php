@@ -331,14 +331,20 @@ public function setIsSendingToQueue(\$_isSendingToQueue)
  */
 protected function getStorageKeyBuilder(\$resource)
 {
-    if (\$this->_locator === null) {
-        \$this->_locator = \\Spryker\\Zed\\Kernel\\Locator::getInstance();
+     static \$cache = [];
+     if (!isset(\$cache[\$resource])) {
+         if (\$this->_locator === null) {
+            \$this->_locator = \\Spryker\\Zed\\Kernel\\Locator::getInstance();
+         }
+        
+         /** @var \\Spryker\\Service\\Synchronization\\SynchronizationServiceInterface \$synchronizationService */
+         \$synchronizationService = \$this->_locator->synchronization()->service();
+        
+         \$cache[\$resource] = \$synchronizationService->getStorageKeyBuilder(\$resource);
     }
-
-    /** @var \\Spryker\\Service\\Synchronization\\SynchronizationServiceInterface \$synchronizationService */
-    \$synchronizationService = \$this->_locator->synchronization()->service();
-
-    return \$synchronizationService->getStorageKeyBuilder(\$resource);
+      
+    return \$cache[\$resource];   
+    
 }
         ";
     }
