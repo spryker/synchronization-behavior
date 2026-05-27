@@ -1120,8 +1120,10 @@ protected function setGeneratedAliasKeys()
             ];
         }
     }
-    \$aliasKeys = json_encode(\$aliasKeys);
-    \$this->setAliasKeys(\$aliasKeys);
+    if (\$aliasKeys) {
+        \$aliasKeys = json_encode(\$aliasKeys);
+        \$this->setAliasKeys(\$aliasKeys);
+    }
 }
         ";
     }
