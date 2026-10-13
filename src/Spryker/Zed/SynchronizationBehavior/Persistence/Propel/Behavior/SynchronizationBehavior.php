@@ -7,13 +7,13 @@
 
 namespace Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior;
 
-use Laminas\Filter\Word\UnderscoreToCamelCase;
 use LogicException;
 use Propel\Generator\Model\Behavior;
 use Propel\Generator\Model\Column;
 use Propel\Generator\Model\Table;
 use Propel\Generator\Model\Unique;
 use Propel\Generator\Util\PhpParser;
+use Spryker\Shared\Kernel\Filter\Word\UnderscoreToCamelCase;
 use Spryker\Zed\Kernel\BundleConfigResolverAwareTrait;
 use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\InvalidConfigurationException;
 use Spryker\Zed\SynchronizationBehavior\Persistence\Propel\Behavior\Exception\MissingAttributeException;
